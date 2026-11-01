@@ -45,7 +45,7 @@ footer{max-width:1150px;margin:20px auto 35px;padding:0 18px;color:var(--muted);
 <div><label for="format">Video format</label><select id="format"><option value="portrait">9:16 Shorts</option><option value="landscape">16:9 Landscape</option></select></div>
 <div><label for="duration">Duration</label><select id="duration"><option value="15">15 seconds</option><option value="30" selected>30 seconds</option><option value="45">45 seconds</option></select></div>
 <div><label for="voice">Preview voice</label><select id="voice"><option value="">Loading voices…</option></select></div>
-<div><label for="visual">Visual style</label><select id="visual"><option value="auto">Auto cinematic</option><option value="nature">Nature film</option><option value="city">City film</option><option value="ocean">Ocean film</option><option value="space">Space film</option></select></div>
+<div><label for="visual">Visual style</label><select id="visual"><option value="auto">Auto cinematic</option><option value="nature">Nature film</option><option value="city">City film</option><option value="ocean">Ocean film</option><option value="space">Space film</option><option value="cartoon">2D Cartoon</option></select></div>
 </div>
 <div class="actions"><button id="generate">Generate Preview</button><button class="secondary" id="speak">▶ Listen to text</button></div>
 <p class="hint">This studio creates animated scenes locally in your browser with no external AI service. Voice preview uses the voices installed on your device. The exported WebM contains the animation and subtitles; speech audio is not included in the exported file.</p>
@@ -89,7 +89,8 @@ const palettes={
  nature:['#071b31','#397b8a','#e5a96a'],
  city:['#080f24','#273c63','#f18b62'],
  ocean:['#071a32','#17627b','#f4b46d'],
- space:['#030612','#17234c','#7c5b9d']
+ space:['#030612','#17234c','#7c5b9d'],
+ cartoon:['#64c7f2','#b9edff','#ffe38b']
 };
 const colors=palettes[theme]||palettes.nature;
 const sky=ctx.createLinearGradient(0,0,0,h);
@@ -112,7 +113,55 @@ function mountain(y,amp,color,seed){
  }
  ctx.lineTo(w,h);ctx.closePath();ctx.fillStyle=color;ctx.fill();
 }
-if(theme==='nature'){
+if(theme==='cartoon'){
+ // Bright, hand-drawn 2D cartoon landscape with gently moving characters
+ ctx.fillStyle='#79d5ff';ctx.fillRect(0,0,w,h);
+ // soft cartoon clouds
+ function cloud(x,y,scale){
+  ctx.fillStyle='#fff';ctx.strokeStyle='#24506b';ctx.lineWidth=unit*.004;
+  ctx.beginPath();ctx.arc(x,y,unit*.035*scale,Math.PI,0);ctx.arc(x+unit*.04*scale,y-unit*.018*scale,unit*.045*scale,Math.PI,0);ctx.arc(x+unit*.085*scale,y,unit*.035*scale,Math.PI,0);ctx.closePath();ctx.fill();ctx.stroke();
+ }
+ cloud((w*.12+sec*unit*.018)%(w+unit*.2)-unit*.1,h*.2,1.1);
+ cloud((w*.62-sec*unit*.012+w+unit*.2)%(w+unit*.2)-unit*.1,h*.31,.8);
+ // smiling sun
+ ctx.fillStyle='#ffcf4d';ctx.strokeStyle='#8b572b';ctx.lineWidth=unit*.006;
+ ctx.beginPath();ctx.arc(w*.78,h*.22,unit*.075,0,Math.PI*2);ctx.fill();ctx.stroke();
+ ctx.fillStyle='#563b36';ctx.beginPath();ctx.arc(w*.755,h*.21,unit*.006,0,Math.PI*2);ctx.arc(w*.805,h*.21,unit*.006,0,Math.PI*2);ctx.fill();
+ ctx.beginPath();ctx.arc(w*.78,h*.235,unit*.018,.15,Math.PI-.15);ctx.stroke();
+ // rolling green hills
+ ctx.fillStyle='#69c96d';ctx.beginPath();ctx.moveTo(0,h*.59);ctx.quadraticCurveTo(w*.28,h*.43,w*.52,h*.6);ctx.quadraticCurveTo(w*.8,h*.72,w,h*.53);ctx.lineTo(w,h);ctx.lineTo(0,h);ctx.closePath();ctx.fill();
+ ctx.fillStyle='#39a95f';ctx.beginPath();ctx.moveTo(0,h*.73);ctx.quadraticCurveTo(w*.3,h*.58,w*.55,h*.75);ctx.quadraticCurveTo(w*.82,h*.88,w,h*.69);ctx.lineTo(w,h);ctx.lineTo(0,h);ctx.closePath();ctx.fill();
+ // cheerful little house
+ const hx=w*.16,hy=h*.51,hw=w*.22,hh=h*.19;
+ ctx.fillStyle='#ffe4a6';ctx.strokeStyle='#74452f';ctx.lineWidth=unit*.008;
+ ctx.fillRect(hx,hy,hw,hh);ctx.strokeRect(hx,hy,hw,hh);
+ ctx.fillStyle='#e86e59';ctx.beginPath();ctx.moveTo(hx-unit*.025,hy);ctx.lineTo(hx+hw*.5,hy-hh*.62);ctx.lineTo(hx+hw+unit*.025,hy);ctx.closePath();ctx.fill();ctx.stroke();
+ ctx.fillStyle='#8edbff';ctx.fillRect(hx+hw*.12,hy+hh*.2,hw*.22,hh*.25);ctx.strokeRect(hx+hw*.12,hy+hh*.2,hw*.22,hh*.25);
+ ctx.fillStyle='#9b6041';ctx.fillRect(hx+hw*.62,hy+hh*.48,hw*.22,hh*.52);ctx.strokeRect(hx+hw*.62,hy+hh*.48,hw*.22,hh*.52);
+ // round cartoon tree
+ const tx=w*.83,ty=h*.65;
+ ctx.fillStyle='#875332';ctx.fillRect(tx-unit*.018,ty-unit*.13,unit*.036,unit*.17);
+ ctx.fillStyle='#269b57';ctx.strokeStyle='#17623e';ctx.lineWidth=unit*.006;
+ [[0,0],[unit*.045,-unit*.045],[-unit*.045,-unit*.035]].forEach(([dx,dy])=>{ctx.beginPath();ctx.arc(tx+dx,ty-unit*.17+dy,unit*.075,0,Math.PI*2);ctx.fill();ctx.stroke()});
+ // cute simple cartoon person; bobbing and waving arm
+ const px=w*(.56+.018*Math.sin(sec*1.7)),py=h*.7,bob=Math.sin(sec*3)*unit*.008;
+ ctx.save();ctx.translate(px,py+bob);
+ ctx.strokeStyle='#49364a';ctx.lineWidth=unit*.014;ctx.lineCap='round';
+ ctx.fillStyle='#ffcfaa';ctx.beginPath();ctx.arc(0,-unit*.115,unit*.052,0,Math.PI*2);ctx.fill();ctx.stroke();
+ ctx.fillStyle='#49364a';ctx.beginPath();ctx.arc(-unit*.018,-unit*.13,unit*.008,0,Math.PI*2);ctx.arc(unit*.018,-unit*.13,unit*.008,0,Math.PI*2);ctx.fill();
+ ctx.beginPath();ctx.arc(0,-unit*.112,unit*.018,.15,Math.PI-.15);ctx.stroke();
+ ctx.fillStyle='#f26c68';ctx.beginPath();ctx.roundRect(-unit*.045,-unit*.06,unit*.09,unit*.12,unit*.025);ctx.fill();ctx.stroke();
+ ctx.beginPath();ctx.moveTo(-unit*.035,unit*.05);ctx.lineTo(-unit*.045,unit*.13);ctx.moveTo(unit*.035,unit*.05);ctx.lineTo(unit*.05,unit*.13);ctx.stroke();
+ const wave=Math.sin(sec*5)*.55;
+ ctx.beginPath();ctx.moveTo(-unit*.04,-unit*.025);ctx.lineTo(-unit*.09,unit*.025);ctx.moveTo(unit*.04,-unit*.025);ctx.lineTo(unit*(.09+.02*wave),-unit*(.1+.02*wave));ctx.stroke();
+ ctx.restore();
+ // small flowers in foreground
+ for(let i=0;i<16;i++){
+  const fx=(i/15)*w,fy=h*(.88+(i%3)*.025);
+  ctx.strokeStyle='#246b45';ctx.lineWidth=unit*.003;ctx.beginPath();ctx.moveTo(fx,fy);ctx.lineTo(fx,fy-unit*.035);ctx.stroke();
+  ctx.fillStyle=i%2?'#fff0a6':'#fff';ctx.beginPath();ctx.arc(fx,fy-unit*.04,unit*.012,0,Math.PI*2);ctx.fill();
+ }
+}else if(theme==='nature'){
  mountain(horizon,unit*.16,'#142e40',1.1);
  mountain(horizon+unit*.035,unit*.12,'#1b4550',2.7);
  const ground=ctx.createLinearGradient(0,horizon,0,h);ground.addColorStop(0,'#285d50');ground.addColorStop(1,'#071c22');
