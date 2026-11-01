@@ -32,7 +32,7 @@ footer{max-width:1150px;margin:20px auto 35px;padding:0 18px;color:var(--muted);
 <body>
 <header><div class="logo">NEXA <span>3D</span> VIDEO STUDIO</div><div class="tag">BUILD • ANIMATE • EXPORT</div></header>
 <main>
-<section class="intro"><h1>Create animated 3D videos</h1><p>Build a 3D cartoon scene in your browser, animate the characters, preview it and export a WebM video.</p><p class="hint">اب یہ اسٹوڈیو صرف 3D ہے۔ تمام کردار اور ماحول Three.js کے ذریعے حقیقی 3D objects سے بنائے جاتے ہیں۔</p></section>
+<section class="intro"><h1>Create animated 3D videos</h1><p>Create a more natural-looking 3D animated scene in your browser, preview it and export a WebM video.</p><p class="hint">اب یہ اسٹوڈیو صرف 3D ہے۔ تمام کردار اور ماحول Three.js کے ذریعے حقیقی 3D objects سے بنائے جاتے ہیں۔</p></section>
 <div class="layout">
 <section class="panel">
 <h2>✦ 3D Video Creator</h2>
@@ -44,7 +44,7 @@ footer{max-width:1150px;margin:20px auto 35px;padding:0 18px;color:var(--muted);
 <div><label for="duration">Duration</label><select id="duration"><option value="15">15 seconds</option><option value="30" selected>30 seconds</option><option value="45">45 seconds</option></select></div>
 </div>
 <div class="actions"><button id="generate">Generate 3D Preview</button><button class="secondary" id="speak">▶ Listen to story</button></div>
-<p class="hint">3D characters are built from editable geometric shapes. Device voice is for preview only and is not included in the exported video. WebM export works in browsers that support MediaRecorder.</p>
+<p class="hint">3D characters use layered shapes, detailed eyes, soft-looking fur details, natural lighting and shadows. Device voice is for preview only and is not included in the exported video. WebM export works in browsers that support MediaRecorder.</p>
 </section>
 <section class="panel">
 <h2>▣ 3D Video Preview</h2>
@@ -62,60 +62,98 @@ const $=id=>document.getElementById(id);
 const canvas=$('stage');
 let renderer,scene,camera,clock,root,rabbit,bird,birdWings=[],rabbitParts=[],trees=[],raf=0,running=false,recordedUrl='',recorder=null,chunks=[],durationMs=30000,startTime=0;
 let initialized=false;
-function mat(color,roughness=.85){return new THREE.MeshStandardMaterial({color,roughness})}
+function mat(color,roughness=.85,extra={}){return new THREE.MeshStandardMaterial({color,roughness,...extra})}
+function addFurTufts(parent,material,count=34,radius=.025){for(let i=0;i<count;i++){const phi=Math.acos(2*Math.random()-1),theta=Math.random()*Math.PI*2;const x=Math.sin(phi)*Math.cos(theta),y=Math.cos(phi),z=Math.sin(phi)*Math.sin(theta);const tuft=sphere(parent,'soft-fur',[x*.39,y*.43,z*.34],[radius*.7,radius*1.5,radius*.7],material);tuft.position.add(new THREE.Vector3(0,0,0));}}
 function sphere(parent,name,pos,scale,material){const m=new THREE.Mesh(new THREE.SphereGeometry(1,24,18),material);m.name=name;m.position.set(...pos);m.scale.set(...scale);m.castShadow=true;m.receiveShadow=true;parent.add(m);return m}
 function cylinder(parent,pos,r1,r2,height,material,segments=16){const m=new THREE.Mesh(new THREE.CylinderGeometry(r1,r2,height,segments),material);m.position.set(...pos);m.castShadow=true;parent.add(m);return m}
 function makeRabbit(){
  const g=new THREE.Group();root.add(g);
- const white=mat('#f4f0e7'),pink=mat('#ef9eae'),dark=mat('#263344'),eye=mat('#111827'),nose=mat('#ee7890'),shirt=mat('#ff9b57');
- sphere(g,'body',[0,.68,0],[.43,.56,.32],white);
- sphere(g,'head',[0,1.48,.02],[.48,.46,.42],white);
- const ear1=sphere(g,'earL',[-.22,2.03,0],[.14,.48,.13],white);ear1.rotation.z=-.18;
- const ear2=sphere(g,'earR',[.22,2.03,0],[.14,.48,.13],white);ear2.rotation.z=.18;
- sphere(g,'innerEarL',[-.22,2.04,.105],[.075,.34,.035],pink);
- sphere(g,'innerEarR',[.22,2.04,.105],[.075,.34,.035],pink);
- sphere(g,'eyeL',[-.17,1.55,.39],[.045,.065,.025],eye);
- sphere(g,'eyeR',[.17,1.55,.39],[.045,.065,.025],eye);
- sphere(g,'nose',[0,1.39,.43],[.07,.05,.04],nose);
- sphere(g,'cheekL',[-.28,1.38,.32],[.11,.07,.04],pink);
- sphere(g,'cheekR',[.28,1.38,.32],[.11,.07,.04],pink);
- sphere(g,'shirt',[0,.77,.02],[.39,.31,.31],shirt);
- const legL=cylinder(g,[-.2,.22,0],.11,.12,.38,white);
- const legR=cylinder(g,[.2,.22,0],.11,.12,.38,white);
- sphere(g,'tail',[0,.48,-.34],[.17,.17,.17],white);
- const armL=cylinder(g,[-.4,.78,.02],.09,.1,.43,white);armL.rotation.z=-.65;
- const armR=cylinder(g,[.4,.78,.02],.09,.1,.43,white);armR.rotation.z=.65;
- rabbitParts.push(legL,legR,armL,armR);return g;
+ const fur=mat('#eee9df',.96),furLight=mat('#fffaf1',.92),pink=mat('#d98e98',.8),inner=mat('#bd777f',.9),eyeWhite=mat('#fffdf8',.2),iris=mat('#6c4a35',.28),pupil=mat('#17191d',.12),nose=mat('#b96f79',.45),shirt=mat('#789b87',.9);
+ const torso=sphere(g,'body',[0,.72,0],[.39,.58,.32],fur);
+ sphere(g,'chest',[0,.63,.285],[.24,.34,.09],furLight);
+ sphere(g,'head',[0,1.48,.035],[.43,.42,.39],fur);
+ // long, soft ears with pink inner surfaces
+ const earL=sphere(g,'earL',[-.19,1.98,-.015],[.115,.43,.105],fur);earL.rotation.z=-.16;
+ const earR=sphere(g,'earR',[.19,1.98,-.015],[.115,.43,.105],fur);earR.rotation.z=.16;
+ const innerL=sphere(g,'innerEarL',[-.19,1.99,.075],[.061,.335,.025],inner);innerL.rotation.z=-.16;
+ const innerR=sphere(g,'innerEarR',[.19,1.99,.075],[.061,.335,.025],inner);innerR.rotation.z=.16;
+ // eyes with irises and catchlights
+ for(const x of [-.155,.155]){
+  sphere(g,'eyeSclera',[x,1.53,.375],[.078,.09,.045],eyeWhite);
+  sphere(g,'iris',[x+.008,1.53,.413],[.048,.06,.022],iris);
+  sphere(g,'pupil',[x+.012,1.535,.431],[.027,.041,.014],pupil);
+  sphere(g,'eyeGlint',[x-.006,1.558,.445],[.012,.015,.008],mat('#ffffff',.08,{emissive:'#777777'}));
+ }
+ // muzzle, cheeks and nose
+ sphere(g,'muzzleL',[-.085,1.34,.36],[.13,.105,.12],furLight);
+ sphere(g,'muzzleR',[.085,1.34,.36],[.13,.105,.12],furLight);
+ sphere(g,'nose',[0,1.385,.478],[.047,.034,.028],nose);
+ const mouthMat=mat('#76585a');
+ const mouth=new THREE.Mesh(new THREE.TorusGeometry(.045,.008,8,20,Math.PI),mouthMat);mouth.position.set(0,1.315,.467);mouth.rotation.z=Math.PI;g.add(mouth);
+ sphere(g,'cheekL',[-.29,1.34,.30],[.075,.045,.025],mat('#e8a6a5',.95));
+ sphere(g,'cheekR',[.29,1.34,.30],[.075,.045,.025],mat('#e8a6a5',.95));
+ // subtle whiskers
+ const whiskerMat=mat('#b8afa3');
+ for(const side of [-1,1])for(let i=0;i<3;i++){
+  const points=[new THREE.Vector3(side*.12,1.35,.39),new THREE.Vector3(side*.31,1.35+(i-1)*.045,.37),new THREE.Vector3(side*.46,1.34+(i-1)*.075,.34)];
+  const curve=new THREE.CatmullRomCurve3(points);g.add(new THREE.Mesh(new THREE.TubeGeometry(curve,12,.004,5,false),whiskerMat));
+ }
+ sphere(g,'shirt',[0,.78,.015],[.355,.34,.29],shirt);
+ // articulated rounded legs and forepaws
+ const legL=new THREE.Group();legL.position.set(-.2,.39,.03);g.add(legL);
+ sphere(legL,'thigh',[0,-.07,0],[.15,.23,.15],fur);
+ sphere(legL,'foot',[0,-.29,.12],[.16,.09,.25],furLight);
+ const legR=new THREE.Group();legR.position.set(.2,.39,.03);g.add(legR);
+ sphere(legR,'thigh',[0,-.07,0],[.15,.23,.15],fur);
+ sphere(legR,'foot',[0,-.29,.12],[.16,.09,.25],furLight);
+ const armL=new THREE.Group();armL.position.set(-.29,.91,.03);g.add(armL);
+ const leftArm=sphere(armL,'forearm',[0,-.15,.04],[.105,.25,.11],fur);leftArm.rotation.z=-.28;
+ sphere(armL,'paw',[0,-.31,.1],[.11,.105,.11],furLight);
+ const armR=new THREE.Group();armR.position.set(.29,.91,.03);g.add(armR);
+ const rightArm=sphere(armR,'forearm',[0,-.15,.04],[.105,.25,.11],fur);rightArm.rotation.z=.28;
+ sphere(armR,'paw',[0,-.31,.1],[.11,.105,.11],furLight);
+ sphere(g,'tail',[0,.48,-.31],[.145,.145,.145],furLight);
+ rabbitParts.push(legL,legR,armL,armR);
+ // soft fur detail around silhouette
+ for(let i=0;i<22;i++){const a=i/22*Math.PI*2;const tuft=sphere(g,'fur-detail',[Math.cos(a)*.34,.73+Math.sin(a)*.42,.02],[.035,.055,.035],furLight);tuft.rotation.z=-a;}
+ return g;
 }
 function makeBird(){
- const g=new THREE.Group();root.add(g);const blue=mat('#278ee8'),light=mat('#7bc9ff'),orange=mat('#ffb34d'),black=mat('#152338');
- sphere(g,'birdBody',[0,0,0],[.34,.27,.42],blue);
- sphere(g,'birdHead',[0,.28,.12],[.25,.25,.25],blue);
- sphere(g,'birdEye',[-.1,.32,.34],[.035,.045,.025],black);
- const beak=sphere(g,'beak',[0,.22,.39],[.11,.07,.13],orange);beak.rotation.x=.2;
- const wingL=sphere(g,'wingL',[-.27,.02,0],[.12,.2,.3],light);
- const wingR=sphere(g,'wingR',[.27,.02,0],[.12,.2,.3],light);
- birdWings=[wingL,wingR];const tail=sphere(g,'tail',[0,-.03,-.38],[.12,.09,.25],light);tail.rotation.x=-.3;
+ const g=new THREE.Group();root.add(g);const blue=mat('#2879ad',.72),light=mat('#73b6d0',.8),orange=mat('#d99a43',.55),black=mat('#17202b',.18),white=mat('#fffdf2',.22);
+ sphere(g,'birdBody',[0,0,0],[.31,.25,.39],blue);
+ sphere(g,'birdBreast',[0,-.055,.19],[.23,.19,.22],mat('#d9e4d6',.9));
+ sphere(g,'birdHead',[0,.24,.12],[.235,.235,.24],blue);
+ sphere(g,'birdEyeWhite',[-.105,.27,.32],[.052,.06,.03],white);
+ sphere(g,'birdEye',[-.11,.27,.348],[.026,.035,.018],black);
+ sphere(g,'birdGlint',[-.119,.285,.363],[.009,.012,.008],white);
+ const beak=sphere(g,'beak',[0,.18,.38],[.09,.055,.12],orange);beak.rotation.x=.2;
+ const wingL=sphere(g,'wingL',[-.245,.005,.015],[.105,.18,.28],light);
+ const wingR=sphere(g,'wingR',[.245,.005,.015],[.105,.18,.28],light);
+ birdWings=[wingL,wingR];
+ for(let i=0;i<4;i++){const feather=sphere(g,'tail-feather',[((i-1.5)*.055),-.06,-.34],[.055,.055,.22],light);feather.rotation.z=(i-1.5)*.16;}
  return g;
 }
 function addTree(x,z,size=1){
  const group=new THREE.Group();group.position.set(x,0,z);group.scale.setScalar(size);root.add(group);
- cylinder(group,[0,.72,0],.12,.17,1.45,mat('#80502f'));
- const green=['#277c49','#369557','#1e6b43'];
- sphere(group,'leaf1',[0,1.65,0],[.62,.72,.58],mat(green[Math.floor(Math.random()*3)]));
- sphere(group,'leaf2',[-.32,1.42,.08],[.42,.48,.42],mat('#329052'));
- sphere(group,'leaf3',[.32,1.45,-.05],[.43,.5,.43],mat('#2b854c'));
+ const bark=mat('#59402d',1);cylinder(group,[0,.78,0],.13,.2,1.55,bark,12);
+ for(let b=0;b<3;b++){const branch=cylinder(group,[(b-1)*.18,1.25,-.02],.045,.07,.72,bark,9);branch.rotation.z=(b-1)*-.48;}
+ const greens=['#315d3e','#3c7047','#527e4d','#294f39'];
+ for(let i=0;i<9;i++){const a=i*2.4,r=.2+(i%3)*.16;const leaf=sphere(group,'foliage',[Math.cos(a)*r,1.72+(i%4)*.17,Math.sin(a)*r],[.43,.47,.42],mat(greens[i%greens.length],1));}
  trees.push(group);
 }
 function init(){
  scene=new THREE.Scene();scene.background=new THREE.Color('#8bd2f4');scene.fog=new THREE.Fog('#a7d9ee',12,34);
  camera=new THREE.PerspectiveCamera(42,540/960,.1,100);camera.position.set(0,3.4,10);camera.lookAt(0,1.1,0);
  renderer=new THREE.WebGLRenderer({canvas,antialias:true,preserveDrawingBuffer:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(540,960,false);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
- renderer.outputColorSpace=THREE.SRGBColorSpace;
- scene.add(new THREE.HemisphereLight('#e9f8ff','#52704c',2.0));
- const sun=new THREE.DirectionalLight('#fff2d5',3.1);sun.position.set(-4,8,6);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);scene.add(sun);
+ renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+ scene.add(new THREE.HemisphereLight('#e9f3ff','#46513b',1.25));
+ const sun=new THREE.DirectionalLight('#fff0d5',3.4);sun.position.set(-5,9,7);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.camera.left=-12;sun.shadow.camera.right=12;sun.shadow.camera.top=12;sun.shadow.camera.bottom=-12;sun.shadow.bias=-0.00025;scene.add(sun);
+ const fill=new THREE.DirectionalLight('#b7d9ff',.75);fill.position.set(5,4,-5);scene.add(fill);
  root=new THREE.Group();scene.add(root);
- const ground=new THREE.Mesh(new THREE.PlaneGeometry(50,50),mat('#63ad5d'));ground.rotation.x=-Math.PI/2;ground.position.y=-.04;ground.receiveShadow=true;root.add(ground);
+ const groundMat=mat('#557b49',1);const ground=new THREE.Mesh(new THREE.PlaneGeometry(50,50,48,48),groundMat);ground.rotation.x=-Math.PI/2;ground.position.y=-.04;ground.receiveShadow=true;root.add(ground);
+ // meadow grass blades and scattered natural stones
+ const grassMat=mat('#78965a',1);for(let i=0;i<260;i++){const x=(Math.random()-.5)*13,z=(Math.random()-.5)*12;if(Math.abs(x)<1.6&&z>-.8&&z<1.4)continue;const blade=new THREE.Mesh(new THREE.ConeGeometry(.018,.16,4),grassMat);blade.position.set(x,.07,z);blade.rotation.z=(Math.random()-.5)*.45;blade.castShadow=true;root.add(blade);}
+ const stoneMat=mat('#8c9284',1);for(let i=0;i<18;i++){const rock=sphere(root,'stone',[(Math.random()-.5)*12,.07,(Math.random()-.5)*10],[.12+Math.random()*.14,.07,.1+Math.random()*.12],stoneMat);}
  // rolling hills behind the characters
  for(let i=0;i<5;i++){const hill=sphere(root,'hill',[((i-2)*3.3),-.2,-5-i*.7],[3.4,1.15,1.5],mat(i%2?'#6fba68':'#82c878'));hill.position.y=-.45;}
  for(let i=0;i<12;i++){addTree((i%2?1:-1)*(3.5+Math.floor(i/2)*1.2),-2.8-(i%3)*1.7,.75+(i%3)*.15)}
@@ -127,7 +165,7 @@ function init(){
 }
 function resize(){
  if(!initialized)return;const landscape=$('format').value==='landscape';const w=landscape?960:540,h=landscape?540:960;
- renderer.setSize(w,h,false);camera.aspect=w/h;camera.fov=landscape?38:42;camera.position.set(landscape?0:0,landscape?3:3.4,landscape?11:10);camera.lookAt(0,1.05,0);camera.updateProjectionMatrix();
+ renderer.setSize(w,h,false);camera.aspect=w/h;camera.fov=landscape?38:42;camera.position.set(landscape?0:0,landscape?2.75:3.15,landscape?12:11);camera.lookAt(0,1.05,0);camera.updateProjectionMatrix();
 }
 function renderFrame(elapsed){
  const t=elapsed/1000;
@@ -135,7 +173,7 @@ function renderFrame(elapsed){
   rabbitParts[0].rotation.x=Math.sin(t*3)*.45;rabbitParts[1].rotation.x=-Math.sin(t*3)*.45;rabbitParts[2].rotation.z=-.65+Math.sin(t*2)*.15;rabbitParts[3].rotation.z=.65-Math.sin(t*2)*.15;}
  if(bird){bird.position.x=1.2+Math.sin(t*1.15)*.65;bird.position.y=1.55+Math.sin(t*4)*.16;bird.position.z=-.3+Math.cos(t*.7)*.25;bird.rotation.z=Math.sin(t*4)*.08;birdWings[0].rotation.z=Math.sin(t*13)*.7;birdWings[1].rotation.z=-Math.sin(t*13)*.7;}
  trees.forEach((tree,i)=>{tree.rotation.z=Math.sin(t*.8+i)*.018});
- camera.position.x=Math.sin(t*.22)*.35;camera.lookAt(0,1.05,0);renderer.render(scene,camera);
+ camera.position.x=Math.sin(t*.16)*.22;camera.position.y=( $('format').value==='landscape'?2.75:3.15)+Math.sin(t*.12)*.035;camera.lookAt(0,1.05,0);renderer.render(scene,camera);
 }
 function updateOverlay(){ $('overlayTitle').textContent=$('title').value||'My 3D Story';const text=$('prompt').value.trim();$('overlayText').textContent=text.length>95?text.slice(0,92)+'…':(text||'A magical 3D story');}
 function stop(){running=false;cancelAnimationFrame(raf);$('stop').disabled=true}
