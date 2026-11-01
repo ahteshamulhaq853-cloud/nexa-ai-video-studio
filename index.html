@@ -51,7 +51,7 @@ footer{max-width:1150px;margin:20px auto 35px;padding:0 18px;color:var(--muted);
 <div class="preview-wrap"><canvas id="canvas" width="540" height="960"></canvas></div>
 <div class="status" id="status">Ready. Enter a script and select Generate Preview.</div>
 <div class="progress"><div class="bar" id="bar"></div></div>
-<div class="actions"><button id="download" class="secondary" disabled>⬇ Download WebM</button><button id="stop" class="secondary" disabled>Stop Preview</button></div>
+<div class="actions"><button id="export" class="secondary">Export WebM</button><button id="download" class="secondary" disabled>⬇ Download WebM</button><button id="stop" class="secondary" disabled>Stop Preview</button></div>
 <p class="hint">For best results, keep this tab open while exporting. Export duration follows the selected setting.</p>
 </section>
 </div>
@@ -87,8 +87,7 @@ async function exportVideo(){if(!canvas.captureStream||!window.MediaRecorder){$(
 recorder.ondataavailable=e=>{if(e.data.size)recordedChunks.push(e.data)};recorder.onstop=()=>{const blob=new Blob(recordedChunks,{type:'video/webm'});if(recordedUrl)URL.revokeObjectURL(recordedUrl);recordedUrl=URL.createObjectURL(blob);$('download').disabled=false;$('status').textContent='Export complete. Download your WebM video.';$('bar').style.width='100%';stream.getTracks().forEach(t=>t.stop())};
 recorder.start();$('status').textContent='Exporting video…';$('bar').style.width='0%';$('stop').disabled=true;const started=performance.now();function frame(now){const elapsed=now-started;draw(elapsed);$('bar').style.width=Math.min(100,elapsed/durationMs*100)+'%';if(elapsed>=durationMs){recorder.stop();return}raf=requestAnimationFrame(frame)}raf=requestAnimationFrame(frame)}
 $('download').disabled=true;
-const originalGenerate=$('generate').onclick;
-$('generate').onclick=()=>{originalGenerate();$('download').disabled=true;setTimeout(()=>{if(!running){exportVideo()}},0)};
+$('export').onclick=exportVideo;
 makeScenes();resizeCanvas();
 </script>
 </body>
