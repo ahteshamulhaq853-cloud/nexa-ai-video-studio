@@ -4,14 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#081225">
-<title>NEXA AI VIDEO STUDIO</title>
+<title>NEXA 3D VIDEO STUDIO</title>
 <style>
 :root{--bg:#081225;--panel:#101e36;--line:#263956;--blue:#5ca8ff;--cyan:#62e6df;--white:#f4f7ff;--muted:#a8b6cc}
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 80% 0,#18365c 0,transparent 35%),var(--bg);color:var(--white);font:15px system-ui,Arial,sans-serif}
 header{padding:22px max(18px,calc((100% - 1150px)/2));border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:15px}
 .logo{font-weight:900;letter-spacing:1.5px;font-size:20px}.logo span{color:var(--cyan)}.tag{color:var(--muted);font-size:12px}
 main{max-width:1150px;margin:26px auto;padding:0 18px}.intro{margin-bottom:22px}.intro h1{font-size:clamp(26px,5vw,42px);margin:0 0 7px}.intro p{color:var(--muted);margin:0}
-.layout{display:grid;grid-template-columns:minmax(280px, .9fr) minmax(300px,1.1fr);gap:20px}
+.layout{display:grid;grid-template-columns:minmax(280px,.9fr) minmax(300px,1.1fr);gap:20px}
 .panel{background:linear-gradient(145deg,#132440,#0d192e);border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:0 14px 40px #0003}
 h2{font-size:17px;margin:0 0 16px}label{display:block;font-size:13px;color:#c8d5e8;margin:13px 0 7px}
 textarea,input,select{width:100%;border:1px solid #344b6b;background:#09162a;color:white;border-radius:10px;padding:12px;font:inherit;outline:none}
@@ -20,253 +20,136 @@ textarea{min-height:130px;resize:vertical}input:focus,textarea:focus,select:focu
 button{border:0;border-radius:10px;padding:12px 16px;font-weight:750;cursor:pointer;color:#061326;background:linear-gradient(100deg,var(--cyan),#75baff)}
 button.secondary{background:#203653;color:#eaf3ff;border:1px solid #3b5577}button:disabled{opacity:.5;cursor:not-allowed}
 .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}.hint{font-size:12px;color:var(--muted);line-height:1.5;margin-top:12px}
-.preview-wrap{background:#050b15;border:1px solid #34445e;border-radius:14px;padding:12px}
-canvas{display:block;width:100%;max-height:590px;object-fit:contain;background:#080f1c;border-radius:8px}
+.preview-wrap{background:#050b15;border:1px solid #34445e;border-radius:14px;padding:10px;position:relative;overflow:hidden}
+#stage{display:block;width:100%;height:auto;aspect-ratio:9/16;max-height:590px;border-radius:8px;background:linear-gradient(#70c8f5,#d5f0ff 55%,#4b9b58)}
+.overlay{position:absolute;left:8%;right:8%;bottom:8%;text-align:center;pointer-events:none;text-shadow:0 2px 8px #000}
+.overlay strong{display:block;font-size:clamp(17px,3vw,25px);margin-bottom:7px}.overlay span{display:inline-block;background:#06101dcc;border-radius:8px;padding:8px 12px;font-size:clamp(12px,2vw,15px)}
 .status{color:var(--cyan);font-size:13px;min-height:22px;margin-top:12px}.progress{height:6px;background:#1d304b;border-radius:20px;overflow:hidden;margin-top:8px}.bar{height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--blue))}
 footer{max-width:1150px;margin:20px auto 35px;padding:0 18px;color:var(--muted);font-size:12px;text-align:center}
-@media(max-width:760px){header{padding:17px}.layout{grid-template-columns:1fr}main{margin-top:18px}.panel{padding:16px}.intro h1{font-size:29px}}
-
-
+@media(max-width:760px){header{padding:17px}.layout{grid-template-columns:1fr}main{margin-top:18px}.panel{padding:16px}}
 </style>
 </head>
 <body>
-<header><div class="logo">NEXA <span>AI</span> VIDEO STUDIO</div><div class="tag">CREATE • PREVIEW • EXPORT</div></header>
+<header><div class="logo">NEXA <span>3D</span> VIDEO STUDIO</div><div class="tag">BUILD • ANIMATE • EXPORT</div></header>
 <main>
-<section class="intro"><h1>Create videos right in your browser</h1><p>Make animated Urdu or English story videos, preview them, and export WebM files — without AI APIs, accounts, GPU quotas, or paid services.</p><p class="hint">یہ اسٹوڈیو آپ کے اپنے browser میں animations بناتا ہے۔ اسے جتنی بار چاہیں استعمال کر سکتے ہیں؛ یہ حقیقی AI footage generator نہیں ہے۔</p></section>
-
+<section class="intro"><h1>Create animated 3D videos</h1><p>Build a 3D cartoon scene in your browser, animate the characters, preview it and export a WebM video.</p><p class="hint">اب یہ اسٹوڈیو صرف 3D ہے۔ تمام کردار اور ماحول Three.js کے ذریعے حقیقی 3D objects سے بنائے جاتے ہیں۔</p></section>
 <div class="layout">
 <section class="panel">
-<h2>✦ Video Creator</h2>
-<label for="prompt">Your story / video script</label>
-<textarea id="prompt" placeholder="اپنی ویڈیو کا موضوع یا کہانی یہاں لکھیں...">ایک خوبصورت صبح تھی۔ سورج آہستہ آہستہ طلوع ہو رہا تھا۔ ایک نوجوان نے فیصلہ کیا کہ وہ محنت سے اپنے خواب پورے کرے گا۔</textarea>
-<label for="title">Video title</label><input id="title" value="A New Beginning" maxlength="70">
+<h2>✦ 3D Video Creator</h2>
+<label for="prompt">Your story / scene description</label>
+<textarea id="prompt" placeholder="اپنی کہانی یا سین یہاں لکھیں...">ایک چھوٹا سفید خرگوش خوبصورت جنگل میں چل رہا ہے۔ اسے ایک نیلا پرندہ ملتا ہے۔ خرگوش پرندے کی مدد کرتا ہے اور دونوں دوست بن جاتے ہیں۔</textarea>
+<label for="title">Video title</label><input id="title" value="The Rabbit and the Bird" maxlength="70">
 <div class="grid2">
-<div><label for="lang">Text language</label><select id="lang"><option value="ur">Urdu</option><option value="en">English</option></select></div>
 <div><label for="format">Video format</label><select id="format"><option value="portrait">9:16 Shorts</option><option value="landscape">16:9 Landscape</option></select></div>
 <div><label for="duration">Duration</label><select id="duration"><option value="15">15 seconds</option><option value="30" selected>30 seconds</option><option value="45">45 seconds</option></select></div>
-<div><label for="voice">Preview voice</label><select id="voice"><option value="">Loading voices…</option></select></div>
-<div><label for="visual">Visual style</label><select id="visual"><option value="auto">Auto cinematic</option><option value="nature">Nature film</option><option value="city">City film</option><option value="ocean">Ocean film</option><option value="space">Space film</option><option value="cartoon">2D Cartoon</option></select></div>
 </div>
-<div class="actions"><button id="generate">Generate Preview</button><button class="secondary" id="speak">▶ Listen to text</button></div>
-<p class="hint">This studio creates animated scenes locally in your browser with no external AI service. Voice preview uses the voices installed on your device. The exported WebM contains the animation and subtitles; speech audio is not included in the exported file.</p>
+<div class="actions"><button id="generate">Generate 3D Preview</button><button class="secondary" id="speak">▶ Listen to story</button></div>
+<p class="hint">3D characters are built from editable geometric shapes. Device voice is for preview only and is not included in the exported video. WebM export works in browsers that support MediaRecorder.</p>
 </section>
 <section class="panel">
-<h2>▣ Video Preview</h2>
-<div class="preview-wrap"><canvas id="canvas" width="540" height="960"></canvas></div>
-<div class="status" id="status">Ready. Enter a script and select Generate Preview.</div>
-<div class="progress"><div class="bar" id="bar"></div></div>
-<div class="actions"><button id="export" class="secondary">Export WebM</button><button id="download" class="secondary" disabled>⬇ Download WebM</button><button id="stop" class="secondary" disabled>Stop Preview</button></div>
-<p class="hint">For best results, keep this tab open while exporting. Export duration follows the selected setting.</p>
+<h2>▣ 3D Video Preview</h2>
+<div class="preview-wrap" id="previewWrap"><canvas id="stage"></canvas><div class="overlay"><strong id="overlayTitle">The Rabbit and the Bird</strong><span id="overlayText">A little rabbit explores a magical forest</span></div></div>
+<div class="status" id="status">Loading 3D engine…</div><div class="progress"><div class="bar" id="bar"></div></div>
+<div class="actions"><button id="export" class="secondary">Export WebM</button><button id="download" class="secondary" disabled>⬇ Download WebM</button><button id="stop" class="secondary" disabled>Stop</button></div>
+<p class="hint">Keep this page open during export. Video is rendered locally in your browser; no cloud AI service is used.</p>
 </section>
 </div>
 </main>
-<footer>NEXA AI VIDEO STUDIO · Free browser-based animation studio</footer>
-<script>
-const $=id=>document.getElementById(id),canvas=$('canvas'),ctx=canvas.getContext('2d');
-let scenes=[],raf=0,recordedUrl='',recorder=null,recordedChunks=[],running=false,startAt=0,durationMs=30000;
-const palette=[['#102b4d','#246b87'],['#351b52','#a34d73'],['#0b3b37','#258b79'],['#3b2b16','#b87939'],['#142c58','#546fbd']];
-function splitText(text,max=95){const words=text.trim().split(/\s+/);let lines=[],line='';for(const w of words){if((line+' '+w).trim().length>max&&line){lines.push(line);line=w}else line=(line+' '+w).trim()}if(line)lines.push(line);return lines.length?lines:['اپنی کہانی یہاں لکھیں']}
-function makeScenes(){const raw=$('prompt').value.trim()||'اپنی کہانی یہاں لکھیں';const pieces=raw.split(/[.!؟?۔\n]+/).map(x=>x.trim()).filter(Boolean);const chunks=pieces.length?pieces:[raw];const n=Math.min(8,Math.max(3,chunks.length));scenes=Array.from({length:n},(_,i)=>({text:chunks[i%chunks.length],index:i}));}
-function draw(t=0){
-const w=canvas.width,h=canvas.height,sec=t/1000;
-const sceneDuration=durationMs/1000/Math.max(1,scenes.length);
-const sceneIndex=scenes.length?Math.min(scenes.length-1,Math.floor(sec/sceneDuration)):0;
-const s=scenes[sceneIndex]||{text:'NEXA AI VIDEO STUDIO',index:0};
-const local=Math.max(0,sec-sceneIndex*sceneDuration);
-const progress=Math.min(1,local/Math.max(.1,sceneDuration));
-const style=$('visual')?.value||'auto';
-let theme=style;
-if(theme==='auto'){
- const q=(s.text+' '+$('title').value).toLowerCase();
- theme=/sea|ocean|beach|river|water|samandar|darya|ساحل|سمندر|دریا/.test(q)?'ocean':
- /city|building|street|traffic|car|shahar|شہر|سڑک|عمارت/.test(q)?'city':
- /space|galaxy|planet|star|universe|خلاء|ستارے/.test(q)?'space':'nature';
+<footer>NEXA 3D VIDEO STUDIO · Browser-based Three.js animation</footer>
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+const $=id=>document.getElementById(id);
+const canvas=$('stage');
+let renderer,scene,camera,clock,root,rabbit,bird,birdWings=[],rabbitParts=[],trees=[],raf=0,running=false,recordedUrl='',recorder=null,chunks=[],durationMs=30000,startTime=0;
+let initialized=false;
+function mat(color,roughness=.85){return new THREE.MeshStandardMaterial({color,roughness})}
+function sphere(parent,name,pos,scale,material){const m=new THREE.Mesh(new THREE.SphereGeometry(1,24,18),material);m.name=name;m.position.set(...pos);m.scale.set(...scale);m.castShadow=true;m.receiveShadow=true;parent.add(m);return m}
+function cylinder(parent,pos,r1,r2,height,material,segments=16){const m=new THREE.Mesh(new THREE.CylinderGeometry(r1,r2,height,segments),material);m.position.set(...pos);m.castShadow=true;parent.add(m);return m}
+function makeRabbit(){
+ const g=new THREE.Group();root.add(g);
+ const white=mat('#f4f0e7'),pink=mat('#ef9eae'),dark=mat('#263344'),eye=mat('#111827'),nose=mat('#ee7890'),shirt=mat('#ff9b57');
+ sphere(g,'body',[0,.68,0],[.43,.56,.32],white);
+ sphere(g,'head',[0,1.48,.02],[.48,.46,.42],white);
+ const ear1=sphere(g,'earL',[-.22,2.03,0],[.14,.48,.13],white);ear1.rotation.z=-.18;
+ const ear2=sphere(g,'earR',[.22,2.03,0],[.14,.48,.13],white);ear2.rotation.z=.18;
+ sphere(g,'innerEarL',[-.22,2.04,.105],[.075,.34,.035],pink);
+ sphere(g,'innerEarR',[.22,2.04,.105],[.075,.34,.035],pink);
+ sphere(g,'eyeL',[-.17,1.55,.39],[.045,.065,.025],eye);
+ sphere(g,'eyeR',[.17,1.55,.39],[.045,.065,.025],eye);
+ sphere(g,'nose',[0,1.39,.43],[.07,.05,.04],nose);
+ sphere(g,'cheekL',[-.28,1.38,.32],[.11,.07,.04],pink);
+ sphere(g,'cheekR',[.28,1.38,.32],[.11,.07,.04],pink);
+ sphere(g,'shirt',[0,.77,.02],[.39,.31,.31],shirt);
+ const legL=cylinder(g,[-.2,.22,0],.11,.12,.38,white);
+ const legR=cylinder(g,[.2,.22,0],.11,.12,.38,white);
+ sphere(g,'tail',[0,.48,-.34],[.17,.17,.17],white);
+ const armL=cylinder(g,[-.4,.78,.02],.09,.1,.43,white);armL.rotation.z=-.65;
+ const armR=cylinder(g,[.4,.78,.02],.09,.1,.43,white);armR.rotation.z=.65;
+ rabbitParts.push(legL,legR,armL,armR);return g;
 }
-const landscape=w>h,unit=Math.min(w,h);
-const zoom=1+0.035*Math.sin(sec*.45)+progress*.018;
-const drift=Math.sin(sec*.22)*unit*.018;
-const palettes={
- nature:['#071b31','#397b8a','#e5a96a'],
- city:['#080f24','#273c63','#f18b62'],
- ocean:['#071a32','#17627b','#f4b46d'],
- space:['#030612','#17234c','#7c5b9d'],
- cartoon:['#64c7f2','#b9edff','#ffe38b']
-};
-const colors=palettes[theme]||palettes.nature;
-const sky=ctx.createLinearGradient(0,0,0,h);
-sky.addColorStop(0,colors[0]);sky.addColorStop(.58,colors[1]);sky.addColorStop(1,colors[2]);
-ctx.fillStyle=sky;ctx.fillRect(0,0,w,h);
-ctx.save();
-ctx.translate(w/2,h/2);ctx.scale(zoom,zoom);ctx.translate(-w/2+drift,-h/2);
-const horizon=landscape?h*.58:h*.56;
-const sunX=w*(.72+.035*Math.sin(sec*.12)),sunY=h*(theme==='space'?.28:.39);
-const sunR=unit*(theme==='space'?.075:.105);
-const glow=ctx.createRadialGradient(sunX,sunY,2,sunX,sunY,sunR*3.4);
-glow.addColorStop(0,'#fff7dfbb');glow.addColorStop(.25,colors[2]+'aa');glow.addColorStop(1,colors[2]+'00');
-ctx.fillStyle=glow;ctx.fillRect(sunX-sunR*3.5,sunY-sunR*3.5,sunR*7,sunR*7);
-ctx.beginPath();ctx.arc(sunX,sunY,sunR,0,Math.PI*2);ctx.fillStyle=theme==='space'?'#d8d2ff':'#ffe4b0';ctx.fill();
-function mountain(y,amp,color,seed){
- ctx.beginPath();ctx.moveTo(0,h);
- for(let x=0;x<=w+20;x+=unit*.055){
-  const yy=y-Math.abs(Math.sin(x/unit*2.7+seed))*amp-Math.abs(Math.sin(x/unit*6.3+seed*2))*amp*.28;
-  ctx.lineTo(x,yy);
- }
- ctx.lineTo(w,h);ctx.closePath();ctx.fillStyle=color;ctx.fill();
+function makeBird(){
+ const g=new THREE.Group();root.add(g);const blue=mat('#278ee8'),light=mat('#7bc9ff'),orange=mat('#ffb34d'),black=mat('#152338');
+ sphere(g,'birdBody',[0,0,0],[.34,.27,.42],blue);
+ sphere(g,'birdHead',[0,.28,.12],[.25,.25,.25],blue);
+ sphere(g,'birdEye',[-.1,.32,.34],[.035,.045,.025],black);
+ const beak=sphere(g,'beak',[0,.22,.39],[.11,.07,.13],orange);beak.rotation.x=.2;
+ const wingL=sphere(g,'wingL',[-.27,.02,0],[.12,.2,.3],light);
+ const wingR=sphere(g,'wingR',[.27,.02,0],[.12,.2,.3],light);
+ birdWings=[wingL,wingR];const tail=sphere(g,'tail',[0,-.03,-.38],[.12,.09,.25],light);tail.rotation.x=-.3;
+ return g;
 }
-if(theme==='cartoon'){
- // Bright, hand-drawn 2D cartoon landscape with gently moving characters
- ctx.fillStyle='#79d5ff';ctx.fillRect(0,0,w,h);
- // soft cartoon clouds
- function cloud(x,y,scale){
-  ctx.fillStyle='#fff';ctx.strokeStyle='#24506b';ctx.lineWidth=unit*.004;
-  ctx.beginPath();ctx.arc(x,y,unit*.035*scale,Math.PI,0);ctx.arc(x+unit*.04*scale,y-unit*.018*scale,unit*.045*scale,Math.PI,0);ctx.arc(x+unit*.085*scale,y,unit*.035*scale,Math.PI,0);ctx.closePath();ctx.fill();ctx.stroke();
- }
- cloud((w*.12+sec*unit*.018)%(w+unit*.2)-unit*.1,h*.2,1.1);
- cloud((w*.62-sec*unit*.012+w+unit*.2)%(w+unit*.2)-unit*.1,h*.31,.8);
- // smiling sun
- ctx.fillStyle='#ffcf4d';ctx.strokeStyle='#8b572b';ctx.lineWidth=unit*.006;
- ctx.beginPath();ctx.arc(w*.78,h*.22,unit*.075,0,Math.PI*2);ctx.fill();ctx.stroke();
- ctx.fillStyle='#563b36';ctx.beginPath();ctx.arc(w*.755,h*.21,unit*.006,0,Math.PI*2);ctx.arc(w*.805,h*.21,unit*.006,0,Math.PI*2);ctx.fill();
- ctx.beginPath();ctx.arc(w*.78,h*.235,unit*.018,.15,Math.PI-.15);ctx.stroke();
- // rolling green hills
- ctx.fillStyle='#69c96d';ctx.beginPath();ctx.moveTo(0,h*.59);ctx.quadraticCurveTo(w*.28,h*.43,w*.52,h*.6);ctx.quadraticCurveTo(w*.8,h*.72,w,h*.53);ctx.lineTo(w,h);ctx.lineTo(0,h);ctx.closePath();ctx.fill();
- ctx.fillStyle='#39a95f';ctx.beginPath();ctx.moveTo(0,h*.73);ctx.quadraticCurveTo(w*.3,h*.58,w*.55,h*.75);ctx.quadraticCurveTo(w*.82,h*.88,w,h*.69);ctx.lineTo(w,h);ctx.lineTo(0,h);ctx.closePath();ctx.fill();
- // cheerful little house
- const hx=w*.16,hy=h*.51,hw=w*.22,hh=h*.19;
- ctx.fillStyle='#ffe4a6';ctx.strokeStyle='#74452f';ctx.lineWidth=unit*.008;
- ctx.fillRect(hx,hy,hw,hh);ctx.strokeRect(hx,hy,hw,hh);
- ctx.fillStyle='#e86e59';ctx.beginPath();ctx.moveTo(hx-unit*.025,hy);ctx.lineTo(hx+hw*.5,hy-hh*.62);ctx.lineTo(hx+hw+unit*.025,hy);ctx.closePath();ctx.fill();ctx.stroke();
- ctx.fillStyle='#8edbff';ctx.fillRect(hx+hw*.12,hy+hh*.2,hw*.22,hh*.25);ctx.strokeRect(hx+hw*.12,hy+hh*.2,hw*.22,hh*.25);
- ctx.fillStyle='#9b6041';ctx.fillRect(hx+hw*.62,hy+hh*.48,hw*.22,hh*.52);ctx.strokeRect(hx+hw*.62,hy+hh*.48,hw*.22,hh*.52);
- // round cartoon tree
- const tx=w*.83,ty=h*.65;
- ctx.fillStyle='#875332';ctx.fillRect(tx-unit*.018,ty-unit*.13,unit*.036,unit*.17);
- ctx.fillStyle='#269b57';ctx.strokeStyle='#17623e';ctx.lineWidth=unit*.006;
- [[0,0],[unit*.045,-unit*.045],[-unit*.045,-unit*.035]].forEach(([dx,dy])=>{ctx.beginPath();ctx.arc(tx+dx,ty-unit*.17+dy,unit*.075,0,Math.PI*2);ctx.fill();ctx.stroke()});
- // cute simple cartoon person; bobbing and waving arm
- const px=w*(.56+.018*Math.sin(sec*1.7)),py=h*.7,bob=Math.sin(sec*3)*unit*.008;
- ctx.save();ctx.translate(px,py+bob);
- ctx.strokeStyle='#49364a';ctx.lineWidth=unit*.014;ctx.lineCap='round';
- ctx.fillStyle='#ffcfaa';ctx.beginPath();ctx.arc(0,-unit*.115,unit*.052,0,Math.PI*2);ctx.fill();ctx.stroke();
- ctx.fillStyle='#49364a';ctx.beginPath();ctx.arc(-unit*.018,-unit*.13,unit*.008,0,Math.PI*2);ctx.arc(unit*.018,-unit*.13,unit*.008,0,Math.PI*2);ctx.fill();
- ctx.beginPath();ctx.arc(0,-unit*.112,unit*.018,.15,Math.PI-.15);ctx.stroke();
- ctx.fillStyle='#f26c68';ctx.beginPath();ctx.roundRect(-unit*.045,-unit*.06,unit*.09,unit*.12,unit*.025);ctx.fill();ctx.stroke();
- ctx.beginPath();ctx.moveTo(-unit*.035,unit*.05);ctx.lineTo(-unit*.045,unit*.13);ctx.moveTo(unit*.035,unit*.05);ctx.lineTo(unit*.05,unit*.13);ctx.stroke();
- const wave=Math.sin(sec*5)*.55;
- ctx.beginPath();ctx.moveTo(-unit*.04,-unit*.025);ctx.lineTo(-unit*.09,unit*.025);ctx.moveTo(unit*.04,-unit*.025);ctx.lineTo(unit*(.09+.02*wave),-unit*(.1+.02*wave));ctx.stroke();
- ctx.restore();
- // small flowers in foreground
- for(let i=0;i<16;i++){
-  const fx=(i/15)*w,fy=h*(.88+(i%3)*.025);
-  ctx.strokeStyle='#246b45';ctx.lineWidth=unit*.003;ctx.beginPath();ctx.moveTo(fx,fy);ctx.lineTo(fx,fy-unit*.035);ctx.stroke();
-  ctx.fillStyle=i%2?'#fff0a6':'#fff';ctx.beginPath();ctx.arc(fx,fy-unit*.04,unit*.012,0,Math.PI*2);ctx.fill();
- }
-}else if(theme==='nature'){
- mountain(horizon,unit*.16,'#142e40',1.1);
- mountain(horizon+unit*.035,unit*.12,'#1b4550',2.7);
- const ground=ctx.createLinearGradient(0,horizon,0,h);ground.addColorStop(0,'#285d50');ground.addColorStop(1,'#071c22');
- ctx.fillStyle=ground;ctx.fillRect(0,horizon,w,h-horizon);
- for(let i=0;i<32;i++){
-  const x=(i/31)*w,base=horizon+unit*(.13+(i%5)*.025),ht=unit*(.08+(i%7)*.018);
-  ctx.fillStyle=i%2?'#0a292b':'#103a35';ctx.fillRect(x,base-ht*.25,unit*.009,ht);
-  ctx.beginPath();ctx.moveTo(x-unit*.035,base-ht*.15);ctx.lineTo(x+unit*.005,base-ht);ctx.lineTo(x+unit*.045,base-ht*.15);ctx.fill();
-  ctx.beginPath();ctx.moveTo(x-unit*.03,base-ht*.48);ctx.lineTo(x+unit*.005,base-ht*1.2);ctx.lineTo(x+unit*.04,base-ht*.48);ctx.fill();
- }
- // distant atmospheric mist
- for(let i=0;i<5;i++){ctx.fillStyle='#d7f0e8';ctx.globalAlpha=.035;ctx.fillRect(0,horizon+i*unit*.025,w,unit*.018)}ctx.globalAlpha=1;
-}else if(theme==='city'){
- ctx.fillStyle='#101d37';ctx.fillRect(0,horizon,w,h-horizon);
- const bw=unit*.055;
- for(let i=0;i<Math.ceil(w/bw)+2;i++){
-  const x=i*bw,seed=(i*17)%9,bh=unit*(.13+(seed/9)*.27),top=horizon-bh;
-  ctx.fillStyle=['#111d32','#182844','#202b43'][i%3];ctx.fillRect(x,top,bw*.88,bh+unit*.03);
-  ctx.fillStyle='#f9c987';ctx.globalAlpha=.35;
-  for(let yy=top+unit*.025;yy<horizon;yy+=unit*.035)for(let xx=x+unit*.012;xx<x+bw*.8;xx+=unit*.022){if(((Math.floor(xx+yy)+i)%4)!==0)ctx.fillRect(xx,yy,unit*.008,unit*.012)}
-  ctx.globalAlpha=1;
- }
- // perspective road
- ctx.beginPath();ctx.moveTo(w*.42,horizon);ctx.lineTo(w*.58,horizon);ctx.lineTo(w*1.12,h);ctx.lineTo(-w*.12,h);ctx.closePath();ctx.fillStyle='#101522';ctx.fill();
- ctx.strokeStyle='#e9c98c77';ctx.lineWidth=unit*.006;ctx.setLineDash([unit*.035,unit*.035]);ctx.beginPath();ctx.moveTo(w*.5,horizon);ctx.lineTo(w*.5,h);ctx.stroke();ctx.setLineDash([]);
-}else if(theme==='ocean'){
- ctx.fillStyle='#0b4257';ctx.fillRect(0,horizon,w,h-horizon);
- for(let i=0;i<26;i++){
-  const y=horizon+(i/26)*(h-horizon),wave=Math.sin(sec*1.1+i*.8)*unit*.012;
-  ctx.beginPath();ctx.moveTo(0,y);
-  for(let x=0;x<=w;x+=unit*.025)ctx.lineTo(x,y+Math.sin(x/unit*5+sec*1.5+i)*unit*.006+wave);
-  ctx.strokeStyle=i%3?'#b7e6e555':'#ffe0ad77';ctx.lineWidth=unit*.0025;ctx.stroke();
- }
- ctx.fillStyle='#f9d6a2';ctx.globalAlpha=.15;ctx.fillRect(0,horizon,w,horizon*.03);ctx.globalAlpha=1;
-}else{
- // star field and distant planet
- for(let i=0;i<150;i++){
-  const x=(i*197.3%w),y=(i*91.7%horizon);
-  ctx.globalAlpha=.25+.5*(.5+.5*Math.sin(sec*1.8+i));
-  ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(x,y,unit*(i%7===0?.0028:.0012),0,Math.PI*2);ctx.fill();
- }
- ctx.globalAlpha=1;
- const planetX=w*.68,planetY=h*.55,pr=unit*.19;
- const pg=ctx.createRadialGradient(planetX-pr*.35,planetY-pr*.4,pr*.05,planetX,planetY,pr);
- pg.addColorStop(0,'#c9b8ef');pg.addColorStop(.55,'#695b9c');pg.addColorStop(1,'#1b2148');
- ctx.fillStyle=pg;ctx.beginPath();ctx.arc(planetX,planetY,pr,0,Math.PI*2);ctx.fill();
- ctx.strokeStyle='#d9c8ff88';ctx.lineWidth=unit*.012;ctx.beginPath();ctx.ellipse(planetX,planetY,pr*1.55,pr*.38,-.22,0,Math.PI*2);ctx.stroke();
+function addTree(x,z,size=1){
+ const group=new THREE.Group();group.position.set(x,0,z);group.scale.setScalar(size);root.add(group);
+ cylinder(group,[0,.72,0],.12,.17,1.45,mat('#80502f'));
+ const green=['#277c49','#369557','#1e6b43'];
+ sphere(group,'leaf1',[0,1.65,0],[.62,.72,.58],mat(green[Math.floor(Math.random()*3)]));
+ sphere(group,'leaf2',[-.32,1.42,.08],[.42,.48,.42],mat('#329052'));
+ sphere(group,'leaf3',[.32,1.45,-.05],[.43,.5,.43],mat('#2b854c'));
+ trees.push(group);
 }
-ctx.restore();
-// Atmospheric moving clouds, floating dust and cinematic depth
-if(theme!=='space'){
- for(let i=0;i<7;i++){
-  const x=((i*unit*.29+sec*unit*.012)%(w+unit*.3))-unit*.15;
-  const y=h*(.18+(i%4)*.065);
-  ctx.globalAlpha=.045;ctx.fillStyle='#fff';
-  ctx.beginPath();ctx.ellipse(x,y,unit*.11,unit*.018,0,0,Math.PI*2);ctx.fill();
- }
+function init(){
+ scene=new THREE.Scene();scene.background=new THREE.Color('#8bd2f4');scene.fog=new THREE.Fog('#a7d9ee',12,34);
+ camera=new THREE.PerspectiveCamera(42,540/960,.1,100);camera.position.set(0,3.4,10);camera.lookAt(0,1.1,0);
+ renderer=new THREE.WebGLRenderer({canvas,antialias:true,preserveDrawingBuffer:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(540,960,false);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+ renderer.outputColorSpace=THREE.SRGBColorSpace;
+ scene.add(new THREE.HemisphereLight('#e9f8ff','#52704c',2.0));
+ const sun=new THREE.DirectionalLight('#fff2d5',3.1);sun.position.set(-4,8,6);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);scene.add(sun);
+ root=new THREE.Group();scene.add(root);
+ const ground=new THREE.Mesh(new THREE.PlaneGeometry(50,50),mat('#63ad5d'));ground.rotation.x=-Math.PI/2;ground.position.y=-.04;ground.receiveShadow=true;root.add(ground);
+ // rolling hills behind the characters
+ for(let i=0;i<5;i++){const hill=sphere(root,'hill',[((i-2)*3.3),-.2,-5-i*.7],[3.4,1.15,1.5],mat(i%2?'#6fba68':'#82c878'));hill.position.y=-.45;}
+ for(let i=0;i<12;i++){addTree((i%2?1:-1)*(3.5+Math.floor(i/2)*1.2),-2.8-(i%3)*1.7,.75+(i%3)*.15)}
+ rabbit=makeRabbit();rabbit.position.set(-.9,0,.2);
+ bird=makeBird();bird.position.set(1.2,1.6,-.3);
+ // small flowers and rocks
+ for(let i=0;i<22;i++){const x=(Math.random()-.5)*10,z=(Math.random()-.5)*8;const flower=sphere(root,'flower',[x,.08,z],[.055,.055,.055],mat(i%2?'#fff0a6':'#fff5f5'));flower.position.y=.08;}
+ clock=new THREE.Clock();initialized=true;resize();renderFrame(0);$('status').textContent='3D engine ready. Press Generate 3D Preview.';
 }
-ctx.globalAlpha=1;
-// film grain, subtle and deterministic
-for(let i=0;i<95;i++){
- const x=(i*127.7+sec*11)%w,y=(i*71.3+sec*7)%h;
- ctx.fillStyle=i%2?'#ffffff':'#000000';ctx.globalAlpha=.035;ctx.fillRect(x,y,unit*.002,unit*.002);
+function resize(){
+ if(!initialized)return;const landscape=$('format').value==='landscape';const w=landscape?960:540,h=landscape?540:960;
+ renderer.setSize(w,h,false);camera.aspect=w/h;camera.fov=landscape?38:42;camera.position.set(landscape?0:0,landscape?3:3.4,landscape?11:10);camera.lookAt(0,1.05,0);camera.updateProjectionMatrix();
 }
-ctx.globalAlpha=1;
-// Cinematic vignette
-const vignette=ctx.createRadialGradient(w/2,h*.48,unit*.18,w/2,h*.48,unit*.78);
-vignette.addColorStop(0,'#00000000');vignette.addColorStop(1,'#000814aa');
-ctx.fillStyle=vignette;ctx.fillRect(0,0,w,h);
-// Letterbox bars
-const bar=landscape?h*.055:w*.035;
-ctx.fillStyle='#03060de8';ctx.fillRect(0,0,w,bar);ctx.fillRect(0,h-bar,w,bar);
-// Elegant title and subtitle overlays
-ctx.textAlign='center';ctx.textBaseline='middle';
-ctx.fillStyle='#ffffffcc';ctx.font='700 '+Math.round(unit*.026)+'px system-ui';
-ctx.fillText('N E X A   F I L M S',w/2,bar+unit*.045);
-const titleLines=splitText($('title').value||'Your Story',landscape?34:20).slice(0,2);
-ctx.shadowColor='#000';ctx.shadowBlur=unit*.025;
-ctx.fillStyle='#fff';ctx.font='800 '+Math.round(unit*(landscape?.052:.064))+'px system-ui';
-titleLines.forEach((line,i)=>ctx.fillText(line,w/2,h*.69+i*unit*.075));
-ctx.shadowBlur=0;
-const subtitleLines=splitText(s.text,landscape?72:34).slice(0,2);
-const boxY=h*.82,boxH=unit*.105;
-ctx.fillStyle='#06101dcc';ctx.fillRect(w*.06,boxY,w*.88,boxH);
-ctx.fillStyle='#fff';ctx.font='600 '+Math.round(unit*.029)+'px system-ui';
-subtitleLines.forEach((line,i)=>ctx.fillText(line,w/2,boxY+boxH*.37+i*unit*.037));
-ctx.fillStyle='#b9e9e8';ctx.font='500 '+Math.round(unit*.018)+'px system-ui';
-ctx.fillText('SCENE '+(sceneIndex+1)+' / '+scenes.length,w/2,h-bar-unit*.025);
+function renderFrame(elapsed){
+ const t=elapsed/1000;
+ if(rabbit){rabbit.position.y=Math.abs(Math.sin(t*3.1))*.18;rabbit.position.x=-.9+Math.sin(t*.55)*.28;rabbit.rotation.y=Math.sin(t*.45)*.12;
+  rabbitParts[0].rotation.x=Math.sin(t*3)*.45;rabbitParts[1].rotation.x=-Math.sin(t*3)*.45;rabbitParts[2].rotation.z=-.65+Math.sin(t*2)*.15;rabbitParts[3].rotation.z=.65-Math.sin(t*2)*.15;}
+ if(bird){bird.position.x=1.2+Math.sin(t*1.15)*.65;bird.position.y=1.55+Math.sin(t*4)*.16;bird.position.z=-.3+Math.cos(t*.7)*.25;bird.rotation.z=Math.sin(t*4)*.08;birdWings[0].rotation.z=Math.sin(t*13)*.7;birdWings[1].rotation.z=-Math.sin(t*13)*.7;}
+ trees.forEach((tree,i)=>{tree.rotation.z=Math.sin(t*.8+i)*.018});
+ camera.position.x=Math.sin(t*.22)*.35;camera.lookAt(0,1.05,0);renderer.render(scene,camera);
 }
-function resizeCanvas(){if($('format').value==='portrait'){canvas.width=540;canvas.height=960}else{canvas.width=960;canvas.height=540}draw(0)}
-function stopAnimation(){running=false;cancelAnimationFrame(raf);$('stop').disabled=true}
-function animate(now){if(!running)return;const elapsed=now-startAt;draw(elapsed);$('bar').style.width=Math.min(100,elapsed/durationMs*100)+'%';if(elapsed>=durationMs){stopAnimation();$('status').textContent='Preview finished. You can download the WebM video.';return}raf=requestAnimationFrame(animate)}
-function loadVoices(){const list=speechSynthesis.getVoices();const sel=$('voice');sel.innerHTML='';if(!list.length){sel.add(new Option('Default device voice',''));return}list.forEach((v,i)=>sel.add(new Option(v.name+' ('+v.lang+')',String(i))))}
-if('speechSynthesis'in window){loadVoices();speechSynthesis.onvoiceschanged=loadVoices}else $('voice').innerHTML='<option value="">Not supported</option>';
-$('format').addEventListener('change',resizeCanvas);
-$('generate').onclick=()=>{stopAnimation();if(recordedUrl){URL.revokeObjectURL(recordedUrl);recordedUrl=''}$('download').disabled=true;makeScenes();durationMs=Number($('duration').value)*1000;resizeCanvas();running=true;startAt=performance.now();$('status').textContent='Preview is playing…';$('bar').style.width='0%';$('stop').disabled=false;raf=requestAnimationFrame(animate)};
-$('stop').onclick=()=>{stopAnimation();$('status').textContent='Preview stopped.'};
-$('speak').onclick=()=>{if(!('speechSynthesis'in window)){ $('status').textContent='Speech preview is not supported in this browser.';return}speechSynthesis.cancel();const u=new SpeechSynthesisUtterance($('prompt').value);const voices=speechSynthesis.getVoices();const v=voices[Number($('voice').value)];if(v)u.voice=v;u.lang=$('lang').value==='ur'?'ur-PK':'en-US';speechSynthesis.speak(u);$('status').textContent='Playing device voice preview. This audio is not part of the downloaded video.'};
-$('download').onclick=()=>{if(!recordedUrl)return;const a=document.createElement('a');a.href=recordedUrl;a.download='nexa-video.webm';a.click()};
-async function exportVideo(){if(!canvas.captureStream||!window.MediaRecorder){$('status').textContent='WebM export is not supported in this browser.';return}stopAnimation();makeScenes();durationMs=Number($('duration').value)*1000;resizeCanvas();recordedChunks=[];const stream=canvas.captureStream(30);let mime='video/webm;codecs=vp9';if(!MediaRecorder.isTypeSupported(mime))mime='video/webm';try{recorder=new MediaRecorder(stream,{mimeType:mime})}catch(e){$('status').textContent='Could not start video export on this browser.';return}
-recorder.ondataavailable=e=>{if(e.data.size)recordedChunks.push(e.data)};recorder.onstop=()=>{const blob=new Blob(recordedChunks,{type:'video/webm'});if(recordedUrl)URL.revokeObjectURL(recordedUrl);recordedUrl=URL.createObjectURL(blob);$('download').disabled=false;$('status').textContent='Export complete. Download your WebM video.';$('bar').style.width='100%';stream.getTracks().forEach(t=>t.stop())};
-recorder.start();$('status').textContent='Exporting video…';$('bar').style.width='0%';$('stop').disabled=true;const started=performance.now();function frame(now){const elapsed=now-started;draw(elapsed);$('bar').style.width=Math.min(100,elapsed/durationMs*100)+'%';if(elapsed>=durationMs){recorder.stop();return}raf=requestAnimationFrame(frame)}raf=requestAnimationFrame(frame)}
-$('download').disabled=true;
-$('export').onclick=exportVideo;
-makeScenes();resizeCanvas();
+function updateOverlay(){ $('overlayTitle').textContent=$('title').value||'My 3D Story';const text=$('prompt').value.trim();$('overlayText').textContent=text.length>95?text.slice(0,92)+'…':(text||'A magical 3D story');}
+function stop(){running=false;cancelAnimationFrame(raf);$('stop').disabled=true}
+function animate(){if(!running)return;const elapsed=performance.now()-startTime;renderFrame(elapsed);$('bar').style.width=Math.min(100,elapsed/durationMs*100)+'%';if(elapsed>=durationMs){stop();$('status').textContent='3D preview finished.';return}raf=requestAnimationFrame(animate)}
+$('format').addEventListener('change',()=>{resize();updateOverlay()});
+$('title').addEventListener('input',updateOverlay);$('prompt').addEventListener('input',updateOverlay);
+$('generate').onclick=()=>{if(!initialized)return;stop();if(recordedUrl){URL.revokeObjectURL(recordedUrl);recordedUrl=''}$('download').disabled=true;durationMs=Number($('duration').value)*1000;updateOverlay();running=true;startTime=performance.now();$('status').textContent='Playing 3D animation…';$('bar').style.width='0%';$('stop').disabled=false;animate()};
+$('stop').onclick=()=>{stop();$('status').textContent='Preview stopped.'};
+$('speak').onclick=()=>{if(!('speechSynthesis'in window)){$('status').textContent='Speech preview is not supported in this browser.';return}speechSynthesis.cancel();const u=new SpeechSynthesisUtterance($('prompt').value);u.lang=/[\u0600-\u06FF]/.test(u.text)?'ur-PK':'en-US';speechSynthesis.speak(u);$('status').textContent='Playing device voice preview; audio is not included in export.'};
+$('download').onclick=()=>{if(!recordedUrl)return;const a=document.createElement('a');a.href=recordedUrl;a.download='nexa-3d-cartoon.webm';a.click()};
+$('export').onclick=async()=>{if(!initialized||!canvas.captureStream||!window.MediaRecorder){$('status').textContent='WebM export is not supported in this browser.';return}stop();durationMs=Number($('duration').value)*1000;resize();updateOverlay();chunks=[];const stream=canvas.captureStream(30);let mime='video/webm;codecs=vp9';if(!MediaRecorder.isTypeSupported(mime))mime='video/webm';try{recorder=new MediaRecorder(stream,{mimeType:mime})}catch(e){$('status').textContent='Could not start WebM export in this browser.';stream.getTracks().forEach(t=>t.stop());return}
+recorder.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};recorder.onstop=()=>{const blob=new Blob(chunks,{type:'video/webm'});if(recordedUrl)URL.revokeObjectURL(recordedUrl);recordedUrl=URL.createObjectURL(blob);$('download').disabled=false;$('status').textContent='3D video export complete. Download your WebM file.';$('bar').style.width='100%';stream.getTracks().forEach(t=>t.stop())};
+recorder.start();$('status').textContent='Rendering and exporting 3D video…';$('bar').style.width='0%';const begin=performance.now();function exportFrame(){const elapsed=performance.now()-begin;renderFrame(elapsed);$('bar').style.width=Math.min(100,elapsed/durationMs*100)+'%';if(elapsed>=durationMs){recorder.stop();return}raf=requestAnimationFrame(exportFrame)}exportFrame()};
+updateOverlay();init();
 </script>
 </body>
 </html>
