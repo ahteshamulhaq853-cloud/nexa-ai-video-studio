@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#081225">
+<title>NEXA AI VIDEO STUDIO</title>
+<style>
+:root{--bg:#081225;--panel:#101e36;--line:#263956;--blue:#5ca8ff;--cyan:#62e6df;--white:#f4f7ff;--muted:#a8b6cc}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 80% 0,#18365c 0,transparent 35%),var(--bg);color:var(--white);font:15px system-ui,Arial,sans-serif}
+header{padding:22px max(18px,calc((100% - 1150px)/2));border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:15px}
+.logo{font-weight:900;letter-spacing:1.5px;font-size:20px}.logo span{color:var(--cyan)}.tag{color:var(--muted);font-size:12px}
+main{max-width:1150px;margin:26px auto;padding:0 18px}.intro{margin-bottom:22px}.intro h1{font-size:clamp(26px,5vw,42px);margin:0 0 7px}.intro p{color:var(--muted);margin:0}
+.layout{display:grid;grid-template-columns:minmax(280px, .9fr) minmax(300px,1.1fr);gap:20px}
+.panel{background:linear-gradient(145deg,#132440,#0d192e);border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:0 14px 40px #0003}
+h2{font-size:17px;margin:0 0 16px}label{display:block;font-size:13px;color:#c8d5e8;margin:13px 0 7px}
+textarea,input,select{width:100%;border:1px solid #344b6b;background:#09162a;color:white;border-radius:10px;padding:12px;font:inherit;outline:none}
+textarea{min-height:130px;resize:vertical}input:focus,textarea:focus,select:focus{border-color:var(--blue)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+button{border:0;border-radius:10px;padding:12px 16px;font-weight:750;cursor:pointer;color:#061326;background:linear-gradient(100deg,var(--cyan),#75baff)}
+button.secondary{background:#203653;color:#eaf3ff;border:1px solid #3b5577}button:disabled{opacity:.5;cursor:not-allowed}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}.hint{font-size:12px;color:var(--muted);line-height:1.5;margin-top:12px}
+.preview-wrap{background:#050b15;border:1px solid #34445e;border-radius:14px;padding:12px}
+canvas{display:block;width:100%;max-height:590px;object-fit:contain;background:#080f1c;border-radius:8px}
+.status{color:var(--cyan);font-size:13px;min-height:22px;margin-top:12px}.progress{height:6px;background:#1d304b;border-radius:20px;overflow:hidden;margin-top:8px}.bar{height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--blue))}
+footer{max-width:1150px;margin:20px auto 35px;padding:0 18px;color:var(--muted);font-size:12px;text-align:center}
+@media(max-width:760px){header{padding:17px}.layout{grid-template-columns:1fr}main{margin-top:18px}.panel{padding:16px}.intro h1{font-size:29px}}
+</style>
+</head>
+<body>
+<header><div class="logo">NEXA <span>AI</span> VIDEO STUDIO</div><div class="tag">CREATE • PREVIEW • EXPORT</div></header>
+<main>
+<section class="intro"><h1>Turn your idea into a video</h1><p>Create animated story videos with Urdu or English text, subtitles and social-media formats.</p></section>
+<div class="layout">
+<section class="panel">
+<h2>✦ Video Creator</h2>
+<label for="prompt">Your story / video script</label>
+<textarea id="prompt" placeholder="اپنی ویڈیو کا موضوع یا کہانی یہاں لکھیں...">ایک خوبصورت صبح تھی۔ سورج آہستہ آہستہ طلوع ہو رہا تھا۔ ایک نوجوان نے فیصلہ کیا کہ وہ محنت سے اپنے خواب پورے کرے گا۔</textarea>
+<label for="title">Video title</label><input id="title" value="A New Beginning" maxlength="70">
+<div class="grid2">
+<div><label for="lang">Text language</label><select id="lang"><option value="ur">Urdu</option><option value="en">English</option></select></div>
+<div><label for="format">Video format</label><select id="format"><option value="portrait">9:16 Shorts</option><option value="landscape">16:9 Landscape</option></select></div>
+<div><label for="duration">Duration</label><select id="duration"><option value="15">15 seconds</option><option value="30" selected>30 seconds</option><option value="45">45 seconds</option></select></div>
+<div><label for="voice">Preview voice</label><select id="voice"><option value="">Loading voices…</option></select></div>
+</div>
+<div class="actions"><button id="generate">Generate Preview</button><button class="secondary" id="speak">▶ Listen to text</button></div>
+<p class="hint">This studio creates animated scenes locally in your browser. Voice preview uses the voices installed on your device. The exported WebM contains the animation and subtitles; speech audio is not included in the exported file.</p>
+</section>
+<section class="panel">
+<h2>▣ Video Preview</h2>
+<div class="preview-wrap"><canvas id="canvas" width="540" height="960"></canvas></div>
+<div class="status" id="status">Ready. Enter a script and select Generate Preview.</div>
+<div class="progress"><div class="bar" id="bar"></div></div>
+<div class="actions"><button id="download" class="secondary" disabled>⬇ Download WebM</button><button id="stop" class="secondary" disabled>Stop Preview</button></div>
+<p class="hint">For best results, keep this tab open while exporting. Export duration follows the selected setting.</p>
+</section>
+</div>
+</main>
+<footer>NEXA AI VIDEO STUDIO · Browser-based creative tool · No video-generation API required</footer>
+<script>
+const $=id=>document.getElementById(id),canvas=$('canvas'),ctx=canvas.getContext('2d');
+let scenes=[],raf=0,recordedUrl='',recorder=null,recordedChunks=[],running=false,startAt=0,durationMs=30000;
+const palette=[['#102b4d','#246b87'],['#351b52','#a34d73'],['#0b3b37','#258b79'],['#3b2b16','#b87939'],['#142c58','#546fbd']];
+function splitText(text,max=95){const words=text.trim().split(/\s+/);let lines=[],line='';for(const w of words){if((line+' '+w).trim().length>max&&line){lines.push(line);line=w}else line=(line+' '+w).trim()}if(line)lines.push(line);return lines.length?lines:['اپنی کہانی یہاں لکھیں']}
+function makeScenes(){const raw=$('prompt').value.trim()||'اپنی کہانی یہاں لکھیں';const pieces=raw.split(/[.!؟?۔\n]+/).map(x=>x.trim()).filter(Boolean);const chunks=pieces.length?pieces:[raw];const n=Math.min(8,Math.max(3,chunks.length));scenes=Array.from({length:n},(_,i)=>({text:chunks[i%chunks.length],colors:palette[i%palette.length],index:i}));}
+function draw(t=0){const w=canvas.width,h=canvas.height,sec=t/1000,sceneIndex=scenes.length?Math.min(scenes.length-1,Math.floor(sec/(durationMs/1000/scenes.length))):0,s=scenes[sceneIndex]||{text:'NEXA AI VIDEO STUDIO',colors:palette[0],index:0};const p=sec%4;
+const g=ctx.createLinearGradient(0,0,w,h);g.addColorStop(0,s.colors[0]);g.addColorStop(1,s.colors[1]);ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+ctx.globalAlpha=.13;for(let i=0;i<9;i++){ctx.beginPath();ctx.arc((i*97+sec*22)%w,(i*151+Math.sin(sec+i)*35)%h,30+(i%3)*25,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill()}ctx.globalAlpha=1;
+ctx.fillStyle='#ffffff18';ctx.fillRect(35,h*.18,w-70,h*.42);
+ctx.textAlign='center';ctx.fillStyle='#d9f7ff';ctx.font='700 '+Math.round(w*.045)+'px system-ui';ctx.fillText('NEXA AI VIDEO STUDIO',w/2,h*.12);
+ctx.fillStyle='#fff';ctx.font='800 '+Math.round(w*.075)+'px system-ui';const titleLines=splitText($('title').value||'Your Story',18).slice(0,2);titleLines.forEach((line,i)=>ctx.fillText(line,w/2,h*.31+i*w*.09));
+const lines=splitText(s.text, $('format').value==='portrait'?24:44).slice(0,5);ctx.font='600 '+Math.round(w*.048)+'px system-ui';ctx.fillStyle='#fff';lines.forEach((line,i)=>ctx.fillText(line,w/2,h*.53+i*w*.075));
+ctx.fillStyle='#071426cc';ctx.fillRect(20,h-125,w-40,85);ctx.fillStyle='#fff';ctx.font='600 '+Math.round(w*.04)+'px system-ui';const sub=splitText(s.text,$('format').value==='portrait'?26:52).slice(0,2);sub.forEach((line,i)=>ctx.fillText(line,w/2,h-88+i*w*.065));
+ctx.fillStyle='#9ee9e5';ctx.font='500 '+Math.round(w*.027)+'px system-ui';ctx.fillText('SCENE '+(sceneIndex+1)+' / '+scenes.length,w/2,h-22);
+}
+function resizeCanvas(){if($('format').value==='portrait'){canvas.width=540;canvas.height=960}else{canvas.width=960;canvas.height=540}draw(0)}
+function stopAnimation(){running=false;cancelAnimationFrame(raf);$('stop').disabled=true}
+function animate(now){if(!running)return;const elapsed=now-startAt;draw(elapsed);$('bar').style.width=Math.min(100,elapsed/durationMs*100)+'%';if(elapsed>=durationMs){stopAnimation();$('status').textContent='Preview finished. You can download the WebM video.';return}raf=requestAnimationFrame(animate)}
+function loadVoices(){const list=speechSynthesis.getVoices();const sel=$('voice');sel.innerHTML='';if(!list.length){sel.add(new Option('Default device voice',''));return}list.forEach((v,i)=>sel.add(new Option(v.name+' ('+v.lang+')',String(i))))}
+if('speechSynthesis'in window){loadVoices();speechSynthesis.onvoiceschanged=loadVoices}else $('voice').innerHTML='<option value="">Not supported</option>';
+$('format').addEventListener('change',resizeCanvas);
+$('generate').onclick=()=>{stopAnimation();if(recordedUrl){URL.revokeObjectURL(recordedUrl);recordedUrl=''}$('download').disabled=true;makeScenes();durationMs=Number($('duration').value)*1000;resizeCanvas();running=true;startAt=performance.now();$('status').textContent='Preview is playing…';$('bar').style.width='0%';$('stop').disabled=false;raf=requestAnimationFrame(animate)};
+$('stop').onclick=()=>{stopAnimation();$('status').textContent='Preview stopped.'};
+$('speak').onclick=()=>{if(!('speechSynthesis'in window)){ $('status').textContent='Speech preview is not supported in this browser.';return}speechSynthesis.cancel();const u=new SpeechSynthesisUtterance($('prompt').value);const voices=speechSynthesis.getVoices();const v=voices[Number($('voice').value)];if(v)u.voice=v;u.lang=$('lang').value==='ur'?'ur-PK':'en-US';speechSynthesis.speak(u);$('status').textContent='Playing device voice preview. This audio is not part of the downloaded video.'};
+$('download').onclick=()=>{if(!recordedUrl)return;const a=document.createElement('a');a.href=recordedUrl;a.download='nexa-video.webm';a.click()};
+async function exportVideo(){if(!canvas.captureStream||!window.MediaRecorder){$('status').textContent='WebM export is not supported in this browser.';return}stopAnimation();makeScenes();durationMs=Number($('duration').value)*1000;resizeCanvas();recordedChunks=[];const stream=canvas.captureStream(30);let mime='video/webm;codecs=vp9';if(!MediaRecorder.isTypeSupported(mime))mime='video/webm';try{recorder=new MediaRecorder(stream,{mimeType:mime})}catch(e){$('status').textContent='Could not start video export on this browser.';return}
+recorder.ondataavailable=e=>{if(e.data.size)recordedChunks.push(e.data)};recorder.onstop=()=>{const blob=new Blob(recordedChunks,{type:'video/webm'});if(recordedUrl)URL.revokeObjectURL(recordedUrl);recordedUrl=URL.createObjectURL(blob);$('download').disabled=false;$('status').textContent='Export complete. Download your WebM video.';$('bar').style.width='100%';stream.getTracks().forEach(t=>t.stop())};
+recorder.start();$('status').textContent='Exporting video…';$('bar').style.width='0%';$('stop').disabled=true;const started=performance.now();function frame(now){const elapsed=now-started;draw(elapsed);$('bar').style.width=Math.min(100,elapsed/durationMs*100)+'%';if(elapsed>=durationMs){recorder.stop();return}raf=requestAnimationFrame(frame)}raf=requestAnimationFrame(frame)}
+$('download').disabled=true;
+const originalGenerate=$('generate').onclick;
+$('generate').onclick=()=>{originalGenerate();$('download').disabled=true;setTimeout(()=>{if(!running){exportVideo()}},0)};
+makeScenes();resizeCanvas();
+</script>
+</body>
+</html>
