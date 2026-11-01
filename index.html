@@ -25,12 +25,28 @@ canvas{display:block;width:100%;max-height:590px;object-fit:contain;background:#
 .status{color:var(--cyan);font-size:13px;min-height:22px;margin-top:12px}.progress{height:6px;background:#1d304b;border-radius:20px;overflow:hidden;margin-top:8px}.bar{height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--blue))}
 footer{max-width:1150px;margin:20px auto 35px;padding:0 18px;color:var(--muted);font-size:12px;text-align:center}
 @media(max-width:760px){header{padding:17px}.layout{grid-template-columns:1fr}main{margin-top:18px}.panel{padding:16px}.intro h1{font-size:29px}}
+
+.real-ai{margin:0 0 22px;background:linear-gradient(145deg,#142b49,#101b30);border:1px solid #3b6288;border-radius:18px;padding:20px;box-shadow:0 14px 40px #0003}
+.real-ai h2{margin:0 0 8px}.real-ai p{color:var(--muted);line-height:1.55;margin:0 0 14px}
+.ai-frame{width:100%;height:850px;border:1px solid #344b6b;border-radius:12px;background:#fff}
+.ai-links{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+@media(max-width:760px){.real-ai{padding:15px}.ai-frame{height:900px}}
+
 </style>
 </head>
 <body>
 <header><div class="logo">NEXA <span>AI</span> VIDEO STUDIO</div><div class="tag">CREATE • PREVIEW • EXPORT</div></header>
 <main>
 <section class="intro"><h1>Turn your idea into a video</h1><p>Create animated story videos with Urdu or English text, subtitles and social-media formats.</p></section>
+
+<section class="real-ai">
+<h2>✦ Real AI Video Generator — LTX-2.5</h2>
+<p>یہاں LTX-2.5 کے عوامی AI ڈیمو کو استعمال کریں۔ اپنا prompt لکھیں، Generate دبائیں، پھر تیار ویڈیو ڈیمو کے اندر سے ڈاؤن لوڈ کریں۔ مفت GPU مشترکہ ہے، اس لیے کبھی انتظار یا quota error آ سکتا ہے۔</p>
+<iframe class="ai-frame" src="https://arpitkgoyal-ltx-2-5-demo.static.hf.space/index.html" title="LTX-2.5 real AI video generator" loading="lazy" allow="clipboard-read; clipboard-write"></iframe>
+<div class="ai-links"><a href="https://arpitkgoyal-ltx-2-5-demo.static.hf.space/index.html" target="_blank" rel="noopener noreferrer" style="color:#8fdfff">اگر اوپر ڈیمو نہ کھلے تو یہاں الگ ٹیب میں کھولیں</a></div>
+<p class="hint">نوٹ: یہ عوامی ڈیمو ویب سائٹ میں embed کیا گیا ہے؛ ابھی یہ NEXA کے اپنے backend/API سے منسلک نہیں۔ اپنے prompts یا نجی معلومات اس عوامی ڈیمو میں نہ لکھیں۔</p>
+</section>
+
 <div class="layout">
 <section class="panel">
 <h2>✦ Video Creator</h2>
@@ -56,7 +72,7 @@ footer{max-width:1150px;margin:20px auto 35px;padding:0 18px;color:var(--muted);
 </section>
 </div>
 </main>
-<footer>NEXA AI VIDEO STUDIO · Browser-based creative tool · No video-generation API required</footer>
+<footer>NEXA AI VIDEO STUDIO · Browser animation tools + public LTX-2.5 AI demo</footer>
 <script>
 const $=id=>document.getElementById(id),canvas=$('canvas'),ctx=canvas.getContext('2d');
 let scenes=[],raf=0,recordedUrl='',recorder=null,recordedChunks=[],running=false,startAt=0,durationMs=30000;
