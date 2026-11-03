@@ -27,6 +27,9 @@ button.secondary{background:#203653;color:#eaf3ff;border:1px solid #3b5577}butto
 .status{color:var(--cyan);font-size:13px;min-height:22px;margin-top:12px}.progress{height:6px;background:#1d304b;border-radius:20px;overflow:hidden;margin-top:8px}.bar{height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--blue))}
 footer{max-width:1150px;margin:20px auto 35px;padding:0 18px;color:var(--muted);font-size:12px;text-align:center}
 @media(max-width:760px){header{padding:17px}.layout{grid-template-columns:1fr}main{margin-top:18px}.panel{padding:16px}}
+
+/* Interesting Facts section */
+.facts-section{margin-top:24px}.facts-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.facts-head p{color:var(--muted);margin:6px 0 0}.facts-tools{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;margin:16px 0}.facts-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.fact-card{background:linear-gradient(145deg,#172b49,#0b172a);border:1px solid #304765;border-radius:14px;padding:16px;min-height:170px}.fact-icon{font-size:26px}.fact-category{font-size:11px;color:var(--cyan);font-weight:800;letter-spacing:.5px;margin:8px 0}.fact-card h3{font-size:16px;margin:5px 0 8px}.fact-card p{font-size:13px;line-height:1.65;color:#c1cde0;margin:0}.fact-count{font-size:12px;color:var(--muted);margin-top:13px}@media(max-width:760px){.facts-grid{grid-template-columns:1fr 1fr}}@media(max-width:480px){.facts-grid{grid-template-columns:1fr}.facts-tools{grid-template-columns:1fr}.facts-head{align-items:flex-start}}
 </style>
 </head>
 <body>
@@ -55,6 +58,13 @@ footer{max-width:1150px;margin:20px auto 35px;padding:0 18px;color:var(--muted);
 </section>
 </div>
 </main>
+
+<section class="panel facts-section" id="interestingFacts">
+ <div class="facts-head"><div><h2>🌟 دلچسپ معلومات | Interesting Facts</h2><p>دنیا، سائنس، خلا، جانوروں اور تاریخ کے حیران کن حقائق دریافت کریں۔</p></div><span class="tag">LEARN SOMETHING NEW</span></div>
+ <div class="facts-tools"><select id="factCategory" aria-label="حقائق کی قسم"><option value="all">تمام دلچسپ معلومات</option><option value="world">دنیا</option><option value="science">سائنس</option><option value="space">خلا</option><option value="animals">جانور</option><option value="history">تاریخ</option><option value="daily">روزمرہ زندگی</option></select><button type="button" id="randomFact">🎲 ایک نیا حقیقت دکھائیں</button></div>
+ <div class="facts-grid" id="factsGrid" aria-live="polite"></div>
+ <div class="fact-count" id="factCount"></div>
+</section>
 <footer>NEXA 3D VIDEO STUDIO · Browser-based Three.js animation</footer>
 <script type="module">
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
@@ -188,6 +198,51 @@ $('export').onclick=async()=>{if(!initialized||!canvas.captureStream||!window.Me
 recorder.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};recorder.onstop=()=>{const blob=new Blob(chunks,{type:'video/webm'});if(recordedUrl)URL.revokeObjectURL(recordedUrl);recordedUrl=URL.createObjectURL(blob);$('download').disabled=false;$('status').textContent='3D video export complete. Download your WebM file.';$('bar').style.width='100%';stream.getTracks().forEach(t=>t.stop())};
 recorder.start();$('status').textContent='Rendering and exporting 3D video…';$('bar').style.width='0%';const begin=performance.now();function exportFrame(){const elapsed=performance.now()-begin;renderFrame(elapsed);$('bar').style.width=Math.min(100,elapsed/durationMs*100)+'%';if(elapsed>=durationMs){recorder.stop();return}raf=requestAnimationFrame(exportFrame)}exportFrame()};
 updateOverlay();init();
+</script>
+
+<script>
+(()=>{
+ const facts=[
+ {c:"world",i:"🌍",t:"دنیا کا سب سے بڑا سمندر",d:"بحرالکاہل زمین کا سب سے بڑا اور گہرا سمندر ہے۔ یہ دنیا کے بہت بڑے حصے پر پھیلا ہوا ہے۔"},
+ {c:"world",i:"🏔️",t:"بلند ترین پہاڑ",d:"ماؤنٹ ایورسٹ سطح سمندر سے دنیا کی بلند ترین چوٹی ہے۔"},
+ {c:"world",i:"🌳",t:"درخت بھی رابطہ کرتے ہیں",d:"جنگلات میں درخت جڑوں اور فنگس کے باہمی تعلق کے ذریعے غذائی اجزا اور کیمیائی اشاروں کا تبادلہ کر سکتے ہیں۔"},
+ {c:"world",i:"🧊",t:"انٹارکٹکا",d:"انٹارکٹکا زمین کا سرد ترین براعظم ہے اور اس کا زیادہ تر حصہ برف سے ڈھکا رہتا ہے۔"},
+ {c:"world",i:"🏜️",t:"صحرا صرف گرم نہیں ہوتے",d:"انٹارکٹکا ایک سرد صحرا بھی ہے، کیونکہ وہاں بارش اور برف باری بہت کم ہوتی ہے۔"},
+ {c:"science",i:"🧬",t:"انسانی جسم کے خلیے",d:"انسانی جسم کھربوں خلیوں پر مشتمل ہے، اور ہر خلیہ جسم کے کاموں میں اپنا کردار ادا کرتا ہے۔"},
+ {c:"science",i:"⚡",t:"بجلی کی چمک",d:"آسمانی بجلی کا راستہ اپنے اردگرد کی ہوا کو بہت زیادہ گرم کر سکتا ہے، اسی لیے گرج کی آواز پیدا ہوتی ہے۔"},
+ {c:"science",i:"💧",t:"پانی کی خاصیت",d:"پانی عام دباؤ پر تقریباً 0 ڈگری سیلسیس پر جمنا اور 100 ڈگری پر ابلنا شروع کرتا ہے۔"},
+ {c:"science",i:"🧲",t:"مقناطیس",d:"زمین کا اپنا مقناطیسی میدان ہے، جو قطب نما کی سوئی کو سمت دکھانے میں مدد دیتا ہے۔"},
+ {c:"science",i:"🌈",t:"قوسِ قزح",d:"قوسِ قزح اس وقت بنتی ہے جب سورج کی روشنی پانی کے قطروں میں مڑ کر مختلف رنگوں میں بٹتی ہے۔"},
+ {c:"space",i:"🌙",t:"چاند کی روشنی",d:"چاند اپنی روشنی خود پیدا نہیں کرتا؛ وہ سورج کی روشنی منعکس کرتا ہے۔"},
+ {c:"space",i:"🪐",t:"زحل کے حلقے",d:"زحل کے خوبصورت حلقے برف، پتھروں اور گرد کے بے شمار چھوٹے ذرات سے بنے ہیں۔"},
+ {c:"space",i:"☀️",t:"سورج ایک ستارہ ہے",d:"سورج ہمارے نظامِ شمسی کا ستارہ ہے اور زمین پر توانائی کا بنیادی قدرتی ذریعہ ہے۔"},
+ {c:"space",i:"🔴",t:"مریخ کا رنگ",d:"مریخ کی سطح پر آئرن آکسائیڈ یعنی زنگ جیسا مادہ موجود ہے، اسی لیے اسے سرخ سیارہ کہا جاتا ہے۔"},
+ {c:"space",i:"✨",t:"ستاروں کی روشنی",d:"دور دراز ستاروں کی روشنی کو ہم تک پہنچنے میں کئی سال یا اس سے بھی زیادہ وقت لگ سکتا ہے۔"},
+ {c:"animals",i:"🐙",t:"آکٹوپس کے دل",d:"آکٹوپس کے تین دل ہوتے ہیں؛ دو گلپھڑوں کی طرف خون بھیجتے ہیں اور ایک باقی جسم کی طرف۔"},
+ {c:"animals",i:"🐬",t:"ڈولفن کی آوازیں",d:"ڈولفن آوازوں اور مخصوص سیٹیوں کے ذریعے ایک دوسرے سے رابطہ کرتی ہیں۔"},
+ {c:"animals",i:"🦋",t:"تتلی ذائقہ کیسے چکھتی ہے؟",d:"تتلیاں اپنے پاؤں پر موجود حسّاس حصوں سے بھی ذائقے کو محسوس کر سکتی ہیں۔"},
+ {c:"animals",i:"🐘",t:"ہاتھی کی سونڈ",d:"ہاتھی اپنی سونڈ سے سونگھنے، پانی اٹھانے، چیزیں پکڑنے اور رابطہ کرنے جیسے کئی کام لیتا ہے۔"},
+ {c:"animals",i:"🐧",t:"پینگوئن",d:"پینگوئن پرندے ہیں، لیکن ان کے پر تیرنے کے لیے پروں جیسے فِن بن چکے ہیں۔"},
+ {c:"history",i:"🏛️",t:"قدیم اہرام",d:"مصر کے اہرام قدیم مصری تہذیب کی تعمیراتی مہارت اور منصوبہ بندی کی مثال ہیں۔"},
+ {c:"history",i:"📜",t:"کاغذ کی ابتدا",d:"کاغذ بنانے کی قدیم تکنیک چین میں ہان خاندان کے دور میں ترقی پائی۔"},
+ {c:"history",i:"🧭",t:"قطب نما",d:"قطب نما نے سمندری سفر اور زمین پر راستہ تلاش کرنے کے طریقوں میں اہم تبدیلی پیدا کی۔"},
+ {c:"history",i:"🕌",t:"قدیم علم کے مراکز",d:"بغداد کا بیت الحکمہ علم، ترجمے اور تحقیق کی تاریخ میں ایک معروف مرکز تھا۔"},
+ {c:"history",i:"🗿",t:"موآئی مجسمے",d:"ایسٹر جزیرے کے موآئی مجسمے وہاں کے قدیم باشندوں کی ثقافت اور فن کی یادگار ہیں۔"},
+ {c:"daily",i:"🥕",t:"گاجر اور رنگ",d:"گاجریں مختلف رنگوں میں پائی جاتی ہیں، جن میں نارنجی، جامنی، سفید اور پیلی گاجریں شامل ہیں۔"},
+ {c:"daily",i:"🍯",t:"شہد",d:"اگر مناسب طریقے سے بند اور محفوظ رکھا جائے تو شہد طویل عرصے تک خراب ہونے سے بچ سکتا ہے۔"},
+ {c:"daily",i:"☕",t:"کافی کی خوشبو",d:"کافی کی خوشبو میں سینکڑوں مختلف خوشبودار مرکبات حصہ لیتے ہیں۔"},
+ {c:"daily",i:"📚",t:"پڑھنے کا فائدہ",d:"روزانہ مطالعہ نئی معلومات، الفاظ اور خیالات سیکھنے کا اچھا ذریعہ ہے۔"},
+ {c:"daily",i:"🌱",t:"بیج کا سفر",d:"بہت سے پودے بیج سے اگتے ہیں، اور مناسب پانی، ہوا، درجہ حرارت اور روشنی ان کی نشوونما میں مدد دیتے ہیں۔"}
+ ];
+ const names={world:"دنیا",science:"سائنس",space:"خلا",animals:"جانور",history:"تاریخ",daily:"روزمرہ زندگی"};
+ const grid=document.getElementById("factsGrid"),sel=document.getElementById("factCategory"),count=document.getElementById("factCount");
+ let shuffled=[...facts].sort(()=>Math.random()-.5);
+ function render(list){grid.innerHTML=list.map(f=>'<article class="fact-card"><div class="fact-icon">'+f.i+'</div><div class="fact-category">'+names[f.c]+'</div><h3>'+f.t+'</h3><p>'+f.d+'</p></article>').join("");count.textContent=list.length+" دلچسپ معلومات دکھائی جا رہی ہیں۔"}
+ function refresh(){const key=sel.value;render(key==="all"?facts:facts.filter(f=>f.c===key))}
+ sel.addEventListener("change",refresh);
+ document.getElementById("randomFact").addEventListener("click",()=>{const pool=sel.value==="all"?facts:facts.filter(f=>f.c===sel.value);const f=pool[Math.floor(Math.random()*pool.length)];render([f]);count.textContent="آج کی منتخب دلچسپ معلومات۔"})
+ refresh();
+})();
 </script>
 </body>
 </html>
